@@ -1,0 +1,11 @@
+# Dependencies
+node_modules/
+
+# Built files
+/dist/
+/.angular/
+
+# IDE/System files
+.DS_Store
+.vscode/
+.idea/
