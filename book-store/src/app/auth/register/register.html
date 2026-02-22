@@ -1,0 +1,105 @@
+<div class="bg-white p-8 rounded-xl shadow-xl border border-gray-100 w-full max-w-lg mx-auto">
+  <h2 class="text-3xl font-black text-maroon mb-6 text-center">Join the Community</h2>
+
+  <form [formGroup]="registerForm" (ngSubmit)="onRegister()" class="space-y-4">
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-bold text-maroon mb-1">First Name</label>
+        <input
+          formControlName="firstName"
+          class="w-full px-4 py-2 rounded-lg border border-gray-300 outline-none focus:ring-2 focus:ring-rust"
+          [class.border-red-500]="
+            registerForm.get('firstName')?.invalid && registerForm.get('firstName')?.touched
+          "
+        />
+        @if (registerForm.get('firstName')?.invalid && registerForm.get('firstName')?.touched) {
+          <p class="text-red-500 text-xs mt-1">3-15 chars required.</p>
+        }
+      </div>
+      <div>
+        <label class="block text-sm font-bold text-maroon mb-1">Last Name</label>
+        <input
+          formControlName="lastName"
+          class="w-full px-4 py-2 rounded-lg border border-gray-300 outline-none focus:ring-2 focus:ring-rust"
+          [class.border-red-500]="
+            registerForm.get('lastName')?.invalid && registerForm.get('lastName')?.touched
+          "
+        />
+        @if (registerForm.get('lastName')?.invalid && registerForm.get('lastName')?.touched) {
+          <p class="text-red-500 text-xs mt-1">3-15 chars required.</p>
+        }
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-bold text-maroon mb-1">Email</label>
+        <input
+          type="email"
+          formControlName="email"
+          class="w-full px-4 py-2 rounded-lg border border-gray-300 outline-none focus:ring-2 focus:ring-rust"
+          [class.border-red-500]="
+            registerForm.get('email')?.invalid && registerForm.get('email')?.touched
+          "
+        />
+        @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
+          <p class="text-red-500 text-xs mt-1">Please enter a valid email address.</p>
+        }
+      </div>
+      <div>
+        <label class="block text-sm font-bold text-maroon mb-1">Birthday</label>
+        <input
+          type="date"
+          formControlName="dob"
+          class="w-full px-4 py-2 rounded-lg border border-gray-300 outline-none focus:ring-2 focus:ring-rust"
+        />
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-sm font-bold text-maroon mb-1">Password</label>
+      <input
+        type="password"
+        formControlName="password"
+        class="w-full px-4 py-2 rounded-lg border border-gray-300 outline-none focus:ring-2 focus:ring-rust"
+        [class.border-red-500]="
+          registerForm.get('password')?.invalid && registerForm.get('password')?.touched
+        "
+      />
+      @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
+        <p class="text-red-500 text-xs mt-1">Min 8 characters required.</p>
+      }
+    </div>
+
+    <div>
+      <label class="block text-sm font-bold text-maroon mb-1">Confirm Password</label>
+      <input
+        type="password"
+        formControlName="confirmPassword"
+        class="w-full px-4 py-2 rounded-lg border border-gray-300 outline-none focus:ring-2 focus:ring-rust"
+        [class.border-red-500]="
+          registerForm.get('confirmPassword')?.invalid &&
+          registerForm.get('confirmPassword')?.touched
+        "
+      />
+      @if (
+        registerForm.hasError('passwordMismatch') && registerForm.get('confirmPassword')?.touched
+      ) {
+        <p class="text-red-500 text-xs mt-1 font-medium">Passwords do not match.</p>
+      }
+    </div>
+
+    <button
+      type="submit"
+      [disabled]="registerForm.invalid"
+      class="w-full bg-rust text-white py-3 rounded-full font-bold hover:bg-opacity-90 disabled:bg-gray-300 transition shadow-md mt-4 cursor-pointer disabled:cursor-not-allowed"
+    >
+      Create Account
+    </button>
+  </form>
+
+  <p class="mt-4 text-center text-sm text-gray-600">
+    Already a member?
+    <a routerLink="/login" class="text-maroon font-bold hover:underline">Sign In</a>
+  </p>
+</div>
