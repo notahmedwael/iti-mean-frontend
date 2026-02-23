@@ -6,7 +6,8 @@ import {
   AbstractControl,
   ValidationErrors,
 } from '@angular/forms';
-
+import { Auth } from '../../core/services/auth';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-register',
@@ -16,6 +17,8 @@ import {
 })
 export class Register {
   private fb = inject(FormBuilder);
+  private authService = inject(Auth);
+  private router = inject(Router);
 
   registerForm = this.fb.group(
     {
@@ -42,8 +45,16 @@ export class Register {
 
   onRegister() {
     if (this.registerForm.valid) {
-      console.log('Registration Data:', this.registerForm.value);
-      // call the Backend API
+      const { confirmPassword, ...signupData } = this.registerForm.value;
+      this.authService.register(signupData).subscribe({
+        next: () => {
+          alert('Registration successful! Please login.');
+          this.router.navigate(['/login']);
+        },
+        error: (err) => {
+          console.error('Registration error', err);
+        },
+      });
     } else {
       this.registerForm.markAllAsTouched();
     }

@@ -30,11 +30,21 @@
         </button>
       </div>
 
-      <a
-        routerLink="/login"
-        class="bg-maroon text-white px-6 py-2 rounded-full font-semibold text-sm hover:bg-opacity-90 transition"
-        >Sign In</a
-      >
+      @if (authService.isLoggedIn()) {
+        <button
+          (click)="logout()"
+          class="bg-maroon text-white px-6 py-2 rounded-full font-semibold text-sm hover:bg-opacity-90 transition cursor-pointer"
+        >
+          Logout
+        </button>
+      } @else {
+        <a
+          routerLink="/login"
+          class="bg-maroon text-white px-6 py-2 rounded-full font-semibold text-sm hover:bg-opacity-90 transition"
+        >
+          Sign In
+        </a>
+      }
     </div>
   </div>
 </header>

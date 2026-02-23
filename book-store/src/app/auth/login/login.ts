@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-
+import { Auth } from '../../core/services/auth';
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-login',
   imports: [ReactiveFormsModule],
@@ -9,6 +10,8 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 })
 export class Login {
   private fb = inject(FormBuilder);
+  private authService = inject(Auth);
+  private router = inject(Router);
 
   loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -17,8 +20,16 @@ export class Login {
 
   onSubmit() {
     if (this.loginForm.valid) {
-      console.log('Form Data:', this.loginForm.value);
-      // call the Backend API
+      this.authService.login(this.loginForm.value).subscribe({
+        next: (response) => {
+          console.log('Login successful', response);
+          this.router.navigate(['/register']); // Redirect on success
+        },
+        error: (err) => {
+          console.error('Login failed', err);
+          alert('Invalid credentials. Please try again.');
+        },
+      });
     } else {
       this.loginForm.markAllAsTouched();
     }
