@@ -1,10 +1,120 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { BookService, Book, Category, Author } from '../services/book.service';
 
 @Component({
   selector: 'app-books',
   standalone: true,
-  imports: [],
+  imports: [RouterLink, FormsModule],
   templateUrl: './books.html',
   styleUrl: './books.css',
 })
-export class Books {}
+export class Books implements OnInit {
+  books = signal<Book[]>([]);
+  categories = signal<Category[]>([]);
+  authors = signal<Author[]>([]);
+  loading = signal(true);
+  error = signal<string | null>(null);
+
+  // filters
+  search = '';
+  selectedCategory = '';
+  selectedAuthor = '';
+  minPrice: number | null = null;
+  maxPrice: number | null = null;
+
+  // pagination
+  currentPage = 1;
+  limit = 10;
+  totalResults = 0;
+
+  constructor(private bookService: BookService) {}
+
+  ngOnInit(): void {
+    this.fetchBooks();
+    this.fetchCategories();
+    this.fetchAuthors();
+  }
+
+  fetchBooks(): void {
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.bookService.getAllBooks({
+      page: this.currentPage,
+      limit: this.limit,
+      search: this.search || undefined,
+      category: this.selectedCategory || undefined,
+      author: this.selectedAuthor || undefined,
+      minPrice: this.minPrice ?? undefined,
+      maxPrice: this.maxPrice ?? undefined,
+    }).subscribe({
+      next: (res) => {
+        this.books.set(res.data);
+        this.totalResults = res.len;
+        this.loading.set(false);
+      },
+      error: () => {
+        this.error.set('Failed to load books. Make sure the backend is running.');
+        this.loading.set(false);
+      },
+    });
+  }
+
+  fetchCategories(): void {
+    this.bookService.getAllCategories().subscribe({
+      next: (res) => this.categories.set(res.data),
+      error: () => {},
+    });
+  }
+
+  fetchAuthors(): void {
+    this.bookService.getAllAuthors().subscribe({
+      next: (res) => this.authors.set(res.data),
+      error: () => {},
+    });
+  }
+
+  onSearch(): void {
+    this.currentPage = 1;
+    this.fetchBooks();
+  }
+
+  onFilterChange(): void {
+    this.currentPage = 1;
+    this.fetchBooks();
+  }
+
+  onClearFilters(): void {
+    this.search = '';
+    this.selectedCategory = '';
+    this.selectedAuthor = '';
+    this.minPrice = null;
+    this.maxPrice = null;
+    this.currentPage = 1;
+    this.fetchBooks();
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.fetchBooks();
+    }
+  }
+
+  prevPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.fetchBooks();
+    }
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.totalResults / this.limit);
+  }
+
+  get hasActiveFilters(): boolean {
+    return !!(this.search || this.selectedCategory || this.selectedAuthor || this.minPrice || this.maxPrice);
+  }
+}
