@@ -1,0 +1,86 @@
+@if (loading()) {
+    <div class="flex justify-center items-center py-32">
+      <div class="w-10 h-10 border-4 border-rust border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  }
+  
+  @if (error()) {
+    <div class="text-center py-24">
+      <p class="text-5xl mb-4">📭</p>
+      <p class="text-red-500 font-medium text-lg">{{ error() }}</p>
+      <a routerLink="/books" class="mt-4 inline-block text-rust font-semibold hover:underline">
+        ← Back to Books
+      </a>
+    </div>
+  }
+  
+  @if (!loading() && !error() && book()) {
+    <nav class="text-sm text-text-muted mb-6 flex items-center gap-1">
+      <a routerLink="/" class="hover:text-rust transition">Home</a>
+      <span>/</span>
+      <a routerLink="/books" class="hover:text-rust transition">Books</a>
+      <span>/</span>
+      <span class="text-maroon font-medium truncate">{{ book()!.name }}</span>
+    </nav>
+  
+    <div class="flex flex-col md:flex-row gap-10">
+      <div class="w-full md:w-72 flex-shrink-0">
+        <img
+          [src]="book()!.cover"
+          [alt]="book()!.name"
+          class="w-full rounded-xl shadow-lg object-cover aspect-[3/4]"
+        />
+      </div>
+  
+      <div class="flex-grow">
+        <span class="inline-block bg-cream text-rust text-xs font-bold px-3 py-1 rounded-full border border-rust mb-3 capitalize">
+          {{ book()!.category?.name }}
+        </span>
+  
+        <h1 class="text-4xl font-black text-maroon mb-2">{{ book()!.name }}</h1>
+  
+        <p class="text-text-muted text-sm mb-4">
+          By <span class="font-semibold text-maroon">{{ book()!.author?.name }}</span>
+        </p>
+  
+        <div class="flex items-center gap-2 mb-6">
+          <span class="text-gold text-xl tracking-wide">★★★★☆</span>
+          <span class="text-xs text-text-muted">(Reviews coming soon)</span>
+        </div>
+  
+        <div class="flex items-center gap-6 mb-8">
+          <p class="text-4xl font-black text-rust">${{ book()!.price.toFixed(2) }}</p>
+          @if (book()!.stock > 0) {
+            <p class="text-sm">
+              <span class="text-green-600 font-semibold">✓ In Stock</span>
+              <span class="text-text-muted ml-1">({{ book()!.stock }} left)</span>
+            </p>
+          } @else {
+            <p class="text-sm text-red-500 font-semibold">✗ Out of Stock</p>
+          }
+        </div>
+  
+        <div class="flex gap-4 flex-wrap">
+          <button
+            [disabled]="book()!.stock === 0"
+            class="bg-rust text-white px-8 py-3 rounded-full font-bold hover:bg-rust-dark transition shadow-md disabled:bg-gray-300 disabled:cursor-not-allowed"
+          >
+            Add to Cart
+          </button>
+          <a
+            routerLink="/books"
+            class="border border-maroon text-maroon px-8 py-3 rounded-full font-bold hover:bg-maroon hover:text-white transition"
+          >
+            ← Back to Books
+          </a>
+        </div>
+  
+        @if (book()!.author?.bio) {
+          <div class="mt-10 pt-6 border-t border-gray-200">
+            <h3 class="text-xs font-bold text-maroon mb-2 uppercase tracking-widest">About the Author</h3>
+            <p class="text-text-muted text-sm leading-relaxed">{{ book()!.author!.bio }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  }
