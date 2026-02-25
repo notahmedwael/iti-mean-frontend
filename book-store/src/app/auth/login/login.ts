@@ -1,14 +1,23 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectorRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-
+import { Auth } from '../../core/services/auth';
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, CommonModule],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
 export class Login {
   private fb = inject(FormBuilder);
+  private authService = inject(Auth);
+  private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
+
+  isLoading = false;
+  errorMessage: string | null = null;
+  successMessage: string | null = null;
 
   loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -17,8 +26,20 @@ export class Login {
 
   onSubmit() {
     if (this.loginForm.valid) {
-      console.log('Form Data:', this.loginForm.value);
-      // call the Backend API
+      this.isLoading = true;
+      this.authService.login(this.loginForm.value).subscribe({
+        next: (response) => {
+          this.isLoading = false;
+          this.successMessage = 'Welcome back! Redirecting...';
+          setTimeout(() => this.router.navigate(['/register']), 1000); // todo: redirect to dashboard when created
+        },
+        error: (err) => {
+          this.isLoading = false;
+          this.errorMessage = err.error?.message || 'Login failed. Please check your credentials.';
+          this.cdr.detectChanges();
+          // console.log(this.errorMessage);
+        },
+      });
     } else {
       this.loginForm.markAllAsTouched();
     }
