@@ -1,12 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { CommonModule, AsyncPipe } from '@angular/common';
 import { Auth } from '../../core/services/auth';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterLink], // This makes the clickable links in your HTML work
+  imports: [CommonModule, RouterLink, AsyncPipe], // This makes the clickable links in your HTML work
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
 })

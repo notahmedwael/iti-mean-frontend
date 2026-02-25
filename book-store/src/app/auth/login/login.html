@@ -2,6 +2,12 @@
   <h2 class="text-3xl font-black text-maroon mb-6 text-center">Welcome Back</h2>
 
   <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-5">
+    @if (errorMessage) {
+      <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-3 rounded shadow-sm">
+        <p class="text-sm font-bold">{{ errorMessage }}</p>
+      </div>
+    }
+
     <div>
       <label class="block text-sm font-bold text-maroon mb-1">Email Address</label>
       <input
@@ -36,10 +42,10 @@
 
     <button
       type="submit"
-      [disabled]="loginForm.invalid"
+      [disabled]="loginForm.invalid || isLoading"
       class="w-full bg-rust text-white py-3 rounded-full font-bold hover:bg-opacity-90 disabled:bg-gray-300 transition shadow-md mt-4 cursor-pointer disabled:cursor-not-allowed"
     >
-      Sign In
+      {{ isLoading ? 'Processing...' : 'Sign In' }}
     </button>
   </form>
 
