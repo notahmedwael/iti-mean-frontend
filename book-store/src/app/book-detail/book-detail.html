@@ -1,86 +1,142 @@
+<!-- Loading -->
 @if (loading()) {
-    <div class="flex justify-center items-center py-32">
-      <div class="w-10 h-10 border-4 border-rust border-t-transparent rounded-full animate-spin"></div>
-    </div>
-  }
-  
-  @if (error()) {
-    <div class="text-center py-24">
-      <p class="text-5xl mb-4">📭</p>
-      <p class="text-red-500 font-medium text-lg">{{ error() }}</p>
-      <a routerLink="/books" class="mt-4 inline-block text-rust font-semibold hover:underline">
-        ← Back to Books
-      </a>
-    </div>
-  }
-  
-  @if (!loading() && !error() && book()) {
-    <nav class="text-sm text-text-muted mb-6 flex items-center gap-1">
+  <div class="flex justify-center items-center min-h-[60vh]">
+    <div class="w-12 h-12 border-4 border-rust border-t-transparent rounded-full animate-spin"></div>
+  </div>
+}
+
+<!-- Error -->
+@if (error()) {
+  <div class="max-w-7xl mx-auto px-4 text-center py-24">
+    <p class="text-6xl mb-4">📭</p>
+    <p class="text-red-500 font-medium text-lg mb-4">{{ error() }}</p>
+    <a routerLink="/books" class="text-rust font-semibold hover:underline">← Back to Books</a>
+  </div>
+}
+
+@if (!loading() && !error() && book()) {
+
+  <!-- Breadcrumb -->
+  <div class="max-w-7xl mx-auto px-4 mb-4">
+    <nav class="text-xs text-text-muted flex items-center gap-1.5">
       <a routerLink="/" class="hover:text-rust transition">Home</a>
       <span>/</span>
       <a routerLink="/books" class="hover:text-rust transition">Books</a>
       <span>/</span>
       <span class="text-maroon font-medium truncate">{{ book()!.name }}</span>
     </nav>
-  
-    <div class="flex flex-col md:flex-row gap-10">
-      <div class="w-full md:w-72 flex-shrink-0">
-        <img
-          [src]="book()!.cover"
-          [alt]="book()!.name"
-          class="w-full rounded-xl shadow-lg object-cover aspect-[3/4]"
-        />
-      </div>
-  
-      <div class="flex-grow">
-        <span class="inline-block bg-cream text-rust text-xs font-bold px-3 py-1 rounded-full border border-rust mb-3 capitalize">
-          {{ book()!.category?.name }}
-        </span>
-  
-        <h1 class="text-4xl font-black text-maroon mb-2">{{ book()!.name }}</h1>
-  
-        <p class="text-text-muted text-sm mb-4">
-          By <span class="font-semibold text-maroon">{{ book()!.author?.name }}</span>
+  </div>
+
+  <!-- Hero — truly full width, no container -->
+  <div class="relative w-full overflow-hidden min-h-[650px] flex items-center">
+
+    <!-- Blurred bg -->
+    <div
+      class="absolute inset-0 bg-cover bg-center"
+      [style.background-image]="'url(' + getBlurredBg(book()!.cover) + ')'"
+    ></div>
+    <div class="absolute inset-0 bg-cream/85"></div>
+
+    <!-- Content re-constrained inside -->
+    <div class="relative z-10 w-full max-w-7xl mx-auto px-8 py-14 flex flex-col md:flex-row gap-12 items-center justify-between">
+
+      <!-- Left info -->
+      <div class="flex-grow max-w-xl">
+        <div class="inline-flex items-center gap-2 bg-white/70 border border-gold/50 text-gold text-xs font-bold px-4 py-1.5 rounded-full mb-5">
+          🏆 Featured Pick of the Month
+        </div>
+
+        <p class="text-rust text-xs font-black tracking-widest uppercase mb-2">
+          {{ book()!.author?.name }}
+          <span class="text-text-muted mx-2">·</span>
+          {{ book()!.category?.name | titlecase }}
         </p>
-  
-        <div class="flex items-center gap-2 mb-6">
-          <span class="text-gold text-xl tracking-wide">★★★★☆</span>
-          <span class="text-xs text-text-muted">(Reviews coming soon)</span>
+
+        <h1 class="text-5xl font-black text-maroon leading-tight mb-4">{{ book()!.name }}</h1>
+
+        <p class="text-text-muted text-sm leading-relaxed mb-5 max-w-md">
+          @if (book()!.author?.bio) { {{ book()!.author!.bio }} }
+          @else { A must-read title from {{ book()!.author?.name }}. }
+        </p>
+
+        <!-- Rating — 0 until reviews API ready -->
+        <div class="flex items-center gap-3 mb-6">
+          <div class="flex text-gray-300 text-lg">
+            @for (s of emptyStars; track $index) { ★ }
+          </div>
+          <span class="text-maroon font-bold text-sm">0.0</span>
+          <span class="text-text-muted text-sm">· 0 reviews</span>
         </div>
-  
-        <div class="flex items-center gap-6 mb-8">
-          <p class="text-4xl font-black text-rust">${{ book()!.price.toFixed(2) }}</p>
-          @if (book()!.stock > 0) {
-            <p class="text-sm">
-              <span class="text-green-600 font-semibold">✓ In Stock</span>
-              <span class="text-text-muted ml-1">({{ book()!.stock }} left)</span>
-            </p>
-          } @else {
-            <p class="text-sm text-red-500 font-semibold">✗ Out of Stock</p>
-          }
+
+        <!-- Meta -->
+        <div class="flex gap-8 mb-6 pb-6 border-b border-gray-200/70">
+          <div>
+            <p class="text-maroon font-bold text-sm capitalize">{{ book()!.category?.name }}</p>
+            <p class="text-text-muted text-xs">Genre</p>
+          </div>
+          <div>
+            <p class="text-maroon font-bold text-sm">{{ book()!.stock }}</p>
+            <p class="text-text-muted text-xs">In Stock</p>
+          </div>
+          <div>
+            <p class="text-maroon font-bold text-sm">{{ publishedYear }}</p>
+            <p class="text-text-muted text-xs">Published</p>
+          </div>
         </div>
-  
-        <div class="flex gap-4 flex-wrap">
+
+        <!-- Price -->
+        <div class="flex items-center gap-3 mb-7">
+          <p class="text-4xl font-black text-maroon">${{ book()!.price.toFixed(2) }}</p>
+          <p class="text-base text-text-muted line-through">${{ originalPrice }}</p>
+          <span class="bg-rust text-white text-xs font-black px-3 py-1 rounded-full">{{ discountPercent }}% OFF</span>
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex gap-3 flex-wrap mb-6">
           <button
             [disabled]="book()!.stock === 0"
-            class="bg-rust text-white px-8 py-3 rounded-full font-bold hover:bg-rust-dark transition shadow-md disabled:bg-gray-300 disabled:cursor-not-allowed"
-          >
-            Add to Cart
+            class="flex items-center gap-2 bg-rust text-white px-7 py-3 rounded-full font-bold text-sm hover:bg-rust-dark transition shadow-md disabled:bg-gray-300 disabled:cursor-not-allowed"
+          >🛒 Add to Cart</button>
+          <button class="flex items-center gap-2 border-2 border-maroon text-maroon px-7 py-3 rounded-full font-bold text-sm hover:bg-maroon hover:text-white transition">
+            📖 Preview Book
           </button>
-          <a
-            routerLink="/books"
-            class="border border-maroon text-maroon px-8 py-3 rounded-full font-bold hover:bg-maroon hover:text-white transition"
-          >
-            ← Back to Books
-          </a>
         </div>
-  
-        @if (book()!.author?.bio) {
-          <div class="mt-10 pt-6 border-t border-gray-200">
-            <h3 class="text-xs font-bold text-maroon mb-2 uppercase tracking-widest">About the Author</h3>
-            <p class="text-text-muted text-sm leading-relaxed">{{ book()!.author!.bio }}</p>
+
+        <!-- Trust badges -->
+        <div class="flex gap-5 flex-wrap">
+          <span class="flex items-center gap-1.5 text-xs text-text-muted"><span class="w-2 h-2 rounded-full bg-green-400"></span> Free Returns</span>
+          <span class="flex items-center gap-1.5 text-xs text-text-muted"><span class="w-2 h-2 rounded-full bg-green-400"></span> Secure Checkout</span>
+          @if (book()!.stock > 0) {
+            <span class="flex items-center gap-1.5 text-xs text-text-muted"><span class="w-2 h-2 rounded-full bg-green-400"></span> In Stock</span>
+          } @else {
+            <span class="flex items-center gap-1.5 text-xs text-red-400"><span class="w-2 h-2 rounded-full bg-red-400"></span> Out of Stock</span>
+          }
+        </div>
+      </div>
+
+      <!-- Right — Cover + sold badge -->
+      <div class="flex-shrink-0 flex flex-col items-center gap-4">
+        <div class="relative">
+          <div class="absolute -top-3 -right-3 z-10 bg-gold text-white text-xs font-black px-3 py-2 rounded-full shadow-md text-center leading-tight uppercase tracking-wide">
+            Best<br>Seller
           </div>
-        }
+          <div class="w-56 h-80 rounded-2xl overflow-hidden shadow-2xl ring-4 ring-white/50">
+            <img [src]="getCoverUrl(book()!.cover)" [alt]="book()!.name" class="w-full h-full object-cover" />
+          </div>
+        </div>
+        <div class="bg-white rounded-xl shadow-md px-5 py-3 flex items-center gap-3 w-full">
+          <span class="text-2xl">📚</span>
+          <div>
+            <p class="text-maroon font-black text-sm">0 sold</p>
+            <p class="text-text-muted text-xs">this month</p>
+          </div>
+        </div>
       </div>
     </div>
-  }
+  </div>
+
+  <!-- Back link -->
+  <div class="max-w-7xl mx-auto px-4 mt-6">
+    <a routerLink="/books" class="text-rust text-sm font-semibold hover:underline">← Back to All Books</a>
+  </div>
+}
