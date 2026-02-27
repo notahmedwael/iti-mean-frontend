@@ -1,1 +1,15 @@
-<app-layout></app-layout>
+<!-- 
+  Admin routes render their own layout (sidebar) internally via the
+  LayoutComponent shell in app.routes.ts, so we must NOT wrap them
+  in the shared user layout here.
+
+  We use a plain <router-outlet> at the root. The shared layout is
+  applied inside individual user-facing page components if needed,
+  OR you can keep app-layout here and exclude admin via the router —
+  the cleanest approach is shown below:
+
+  • /login, /register        → no layout (full-screen pages)
+  • /books, /books/:id       → shared layout wraps these
+  • /admin/**                → admin layout (sidebar) is self-contained
+-->
+<router-outlet></router-outlet>

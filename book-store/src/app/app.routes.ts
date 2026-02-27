@@ -4,11 +4,32 @@ import { Register } from './auth/register/register';
 import { Books } from './books/books';
 import { BookDetail } from './book-detail/book-detail';
 
+import { LayoutComponent } from './admin/layout/layout';
+import { DashboardComponent } from './admin/dashboard/dashboard';
+import { UsersComponent } from './admin/users/users';
 
 export const routes: Routes = [
+  // ── Auth (no layout wrapper) ──────────────────
   { path: 'login', component: Login },
   { path: 'register', component: Register },
-  { path: 'books', component: Books},
+
+  // ── User-facing pages (shared layout via app.html) ──
+  { path: 'books', component: Books },
   { path: 'books/:id', component: BookDetail },
+
+  // ── Admin (admin layout with sidebar) ────────
+  {
+    path: 'admin',
+    component: LayoutComponent,
+    children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'dashboard', component: DashboardComponent },
+      { path: 'users', component: UsersComponent },
+      // future: { path: 'books',  component: AdminBooksComponent  },
+      // future: { path: 'orders', component: AdminOrdersComponent },
+    ],
+  },
+
+  // ── Fallback ──────────────────────────────────
   { path: '', redirectTo: '/login', pathMatch: 'full' },
 ];
