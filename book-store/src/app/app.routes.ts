@@ -6,6 +6,7 @@ import { BookDetail } from './book-detail/book-detail';
 import { Profile } from './auth/profile/profile';
 import { authGuard } from './core/guards/auth-guard';
 import { guestGuard } from './core/guards/guest-guard';
+import { adminGuard } from './core/guards/admin-guard';
 import { LayoutComponent } from './admin/layout/layout';
 import { DashboardComponent } from './admin/dashboard/dashboard';
 import { UsersComponent } from './admin/users/users';
@@ -24,9 +25,10 @@ export const routes: Routes = [
   {
     path: 'admin',
     component: LayoutComponent,
+    canActivate: [authGuard, adminGuard],
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-      { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
+      { path: 'dashboard', component: DashboardComponent },
       { path: 'users', component: UsersComponent },
       // future: { path: 'books',  component: AdminBooksComponent  },
       // future: { path: 'orders', component: AdminOrdersComponent },

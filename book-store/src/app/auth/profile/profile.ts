@@ -42,7 +42,10 @@ export class Profile implements OnInit {
           this.profileForm.patchValue(user);
         }
       },
-      error: (err) => (this.message = 'Failed to load profile.'),
+      error: (err) => {
+        this.isSuccess = false;
+        this.message = 'Failed to load profile.';
+      },
     });
   }
 
