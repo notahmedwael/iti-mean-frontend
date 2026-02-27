@@ -7,7 +7,7 @@ export const guestGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
 
   if (authService.isLoggedIn()) {
-    router.navigate(['/']); // todo: redirect to dashboard when created
+    router.navigate(['/books']); // todo: redirect to dashboard when created
     return false;
   }
   return true;

@@ -2,10 +2,10 @@ import { Component, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Auth } from '../../core/services/auth';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, RouterLink],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
@@ -31,7 +31,7 @@ export class Login {
         next: (response) => {
           this.isLoading = false;
           this.successMessage = 'Welcome back! Redirecting...';
-          setTimeout(() => this.router.navigate(['/register']), 1000); // todo: redirect to dashboard when created
+          setTimeout(() => this.router.navigate(['/books']), 1000);
         },
         error: (err) => {
           this.isLoading = false;

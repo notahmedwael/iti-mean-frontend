@@ -2,6 +2,18 @@
   <h2 class="text-3xl font-black text-maroon mb-6 text-center">Join the Community</h2>
 
   <form [formGroup]="registerForm" (ngSubmit)="onRegister()" class="space-y-4">
+    @if (successMessage) {
+      <div class="bg-green-50 border-l-4 border-green-500 text-green-700 p-3 rounded shadow-sm">
+        <p class="text-sm font-bold">{{ successMessage }}</p>
+      </div>
+    }
+
+    @if (errorMessage) {
+      <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-3 rounded shadow-sm">
+        <p class="text-sm font-bold">{{ errorMessage }}</p>
+      </div>
+    }
+
     <div class="grid grid-cols-2 gap-4">
       <div>
         <label class="block text-sm font-bold text-maroon mb-1">First Name</label>
@@ -75,15 +87,15 @@
       <label class="block text-sm font-bold text-maroon mb-1">Confirm Password</label>
       <input
         type="password"
-        formControlName="confirmPassword"
+        formControlName="passwordConfirm"
         class="w-full px-4 py-2 rounded-lg border border-gray-300 outline-none focus:ring-2 focus:ring-rust"
         [class.border-red-500]="
-          registerForm.get('confirmPassword')?.invalid &&
-          registerForm.get('confirmPassword')?.touched
+          registerForm.get('passwordConfirm')?.invalid &&
+          registerForm.get('passwordConfirm')?.touched
         "
       />
       @if (
-        registerForm.hasError('passwordMismatch') && registerForm.get('confirmPassword')?.touched
+        registerForm.hasError('passwordMismatch') && registerForm.get('passwordConfirm')?.touched
       ) {
         <p class="text-red-500 text-xs mt-1 font-medium">Passwords do not match.</p>
       }
@@ -91,15 +103,17 @@
 
     <button
       type="submit"
-      [disabled]="registerForm.invalid"
+      [disabled]="isLoading"
       class="w-full bg-rust text-white py-3 rounded-full font-bold hover:bg-opacity-90 disabled:bg-gray-300 transition shadow-md mt-4 cursor-pointer disabled:cursor-not-allowed"
     >
-      Create Account
+      {{ isLoading ? 'Creating Account...' : 'Create Account' }}
     </button>
-  </form>
 
-  <p class="mt-4 text-center text-sm text-gray-600">
-    Already a member?
-    <a routerLink="/login" class="text-maroon font-bold hover:underline">Sign In</a>
-  </p>
+    <p class="mt-4 text-center text-sm text-gray-600">
+      Already a member?
+      <a routerLink="/login" class="text-maroon font-bold hover:underline cursor-pointer"
+        >Sign In</a
+      >
+    </p>
+  </form>
 </div>
