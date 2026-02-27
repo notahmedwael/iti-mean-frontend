@@ -1,0 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Active sidebar link */
+:host ::ng-deep .sidebar-active {
+  background-color: #bc552a !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+.sidebar-link {
+  text-decoration: none;
+}
