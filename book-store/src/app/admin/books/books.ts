@@ -1,12 +1,11 @@
 import { Component, OnInit, signal, HostListener } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { PaginationComponent } from '../shared/pagination/pagination';
-import { BookService, Book, Author, Category } from '../../services/book.service';
+import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { BookService, Book, Category, Author } from '../../services/book.service';
 import { firstValueFrom } from 'rxjs';
 
-// ── Types ────────────────────────────────────────────
 interface BookForm {
   name: string;
   price: number | null;
@@ -15,227 +14,181 @@ interface BookForm {
   category: string;
 }
 
-interface CloudinarySignature {
-  signature: string;
-  timestamp: number;
-  cloudName: string;
-  apiKey: string;
-  folder: string;
-}
-
 type MiniModalType = 'author' | 'category' | null;
 
 @Component({
   selector: 'app-admin-books',
   standalone: true,
-  imports: [CommonModule, FormsModule, PaginationComponent],
+  imports: [CommonModule, RouterLink, FormsModule],
   templateUrl: './books.html',
   styleUrls: ['./books.css'],
 })
 export class AdminBooksComponent implements OnInit {
   private baseUrl = 'http://localhost:8000';
 
-  // ── Books Data ───────────────────────────────────
+  // ── Book list signals
   books = signal<Book[]>([]);
-  authors = signal<Author[]>([]);
   categories = signal<Category[]>([]);
+  authors = signal<Author[]>([]);
   loading = signal(true);
   error = signal<string | null>(null);
 
-  // ── Pagination ───────────────────────────────────
+  // ── Filters
+  search = '';
+  selectedCategory = '';
+  selectedAuthor = '';
+  minPrice: number | null = null;
+  maxPrice: number | null = null;
+
+  // ── Pagination
   currentPage = 1;
   limit = 10;
   totalResults = 0;
 
-  // ── Filters (books table) ────────────────────────
-  searchTerm = '';
-  filterAuthor = '';
-  filterCategory = '';
-
-  // ── Book Modal ────────────────────────────────────
+  // ── Book modal state
   showModal = false;
   isEditing = false;
   editingId = '';
   submitting = signal(false);
   submitError = signal<string | null>(null);
-  uploadProgress = signal<string | null>(null);
-
   form: BookForm = { name: '', price: null, stock: null, author: '', category: '' };
 
-  // Cover upload state
-  selectedFile: File | null = null;
-  previewUrl: string | null = null;
-  uploadedCoverUrl: string | null = null;
-  existingCoverUrl: string | null = null;
-
-  // ── Mini Modal (Author / Category) ───────────────
+  // ── Mini-modal state (Author / Category)
   miniModal: MiniModalType = null;
   miniEditing = false;
   miniEditingId = '';
   miniName = '';
-  miniBio = '';    // author only
+  miniBio = '';              // author only
   miniSubmitting = signal(false);
   miniError = signal<string | null>(null);
-
-  /** List for table inside mini-modal */
   miniAuthorList = signal<Author[]>([]);
   miniCategoryList = signal<Category[]>([]);
 
-  constructor(private http: HttpClient, private bookService: BookService) { }
+  constructor(private bookService: BookService, private http: HttpClient) { }
 
   ngOnInit(): void {
     this.fetchBooks();
     this.loadAuthorsAndCategories();
   }
 
-  // ── Shared loader ─────────────────────────────────
+  // ── Shared loader ─────────────────────────────
   loadAuthorsAndCategories(): void {
     this.bookService.getAllAuthors().subscribe({
-      next: (r) => {
-        this.authors.set(r.data);
-        this.miniAuthorList.set(r.data);
-      }
+      next: (r) => { this.authors.set(r.data); this.miniAuthorList.set(r.data); },
     });
     this.bookService.getAllCategories().subscribe({
-      next: (r) => {
-        this.categories.set(r.data);
-        this.miniCategoryList.set(r.data);
-      }
+      next: (r) => { this.categories.set(r.data); this.miniCategoryList.set(r.data); },
     });
   }
 
-  // ── Books Fetch ───────────────────────────────────
+  // ── Books fetch ───────────────────────────────
   fetchBooks(): void {
     this.loading.set(true);
     this.error.set(null);
-    let params = new HttpParams()
-      .set('page', this.currentPage.toString())
-      .set('limit', this.limit.toString());
-    if (this.searchTerm) params = params.set('search', this.searchTerm);
-    if (this.filterAuthor) params = params.set('author', this.filterAuthor);
-    if (this.filterCategory) params = params.set('category', this.filterCategory);
-
-    this.http.get<{ status: string; len: number; data: Book[] }>(`${this.baseUrl}/book`, { params })
-      .subscribe({
-        next: (res) => { this.books.set(res.data); this.totalResults = res.len; this.loading.set(false); },
-        error: () => { this.error.set('Failed to load books.'); this.loading.set(false); },
-      });
+    this.bookService.getAllBooks({
+      page: this.currentPage,
+      limit: this.limit,
+      search: this.search || undefined,
+      category: this.selectedCategory || undefined,
+      author: this.selectedAuthor || undefined,
+      minPrice: this.minPrice ?? undefined,
+      maxPrice: this.maxPrice ?? undefined,
+    }).subscribe({
+      next: (res) => { this.books.set(res.data); this.totalResults = res.len; this.loading.set(false); },
+      error: () => { this.error.set('Failed to load books. Make sure the backend is running.'); this.loading.set(false); },
+    });
   }
 
+  // ── Filter/search handlers ────────────────────
+  onSearch(): void { this.currentPage = 1; this.fetchBooks(); }
   onFilterChange(): void { this.currentPage = 1; this.fetchBooks(); }
   onClearFilters(): void {
-    this.searchTerm = '';
-    this.filterAuthor = '';
-    this.filterCategory = '';
+    this.search = '';
+    this.selectedCategory = '';
+    this.selectedAuthor = '';
+    this.minPrice = null;
+    this.maxPrice = null;
     this.currentPage = 1;
     this.fetchBooks();
   }
 
-  get hasActiveFilters(): boolean {
-    return !!(this.searchTerm || this.filterAuthor || this.filterCategory);
-  }
-
-  goToPage(page: number): void {
-    if (page >= 1 && page <= this.totalPages) { this.currentPage = page; this.fetchBooks(); }
-  }
-
+  // ── Pagination ────────────────────────────────
+  nextPage(): void { if (this.currentPage < this.totalPages) { this.currentPage++; this.fetchBooks(); } }
+  prevPage(): void { if (this.currentPage > 1) { this.currentPage--; this.fetchBooks(); } }
   get totalPages(): number { return Math.max(1, Math.ceil(this.totalResults / this.limit)); }
-
-  // ── File Input ────────────────────────────────────
-  onFileSelected(event: Event): void {
-    const file = (event.target as HTMLInputElement).files?.[0] ?? null;
-    if (!file) return;
-    if (this.previewUrl) URL.revokeObjectURL(this.previewUrl);
-    this.selectedFile = file;
-    this.previewUrl = URL.createObjectURL(file);
-    this.uploadedCoverUrl = null;
+  get hasActiveFilters(): boolean {
+    return !!(this.search || this.selectedCategory || this.selectedAuthor || this.minPrice || this.maxPrice);
   }
 
-  private async uploadToCloudinary(): Promise<string> {
-    this.uploadProgress.set('Getting upload signature…');
-    const sig = await firstValueFrom(
-      this.http.get<CloudinarySignature>(`${this.baseUrl}/upload/signature`)
-    );
-    this.uploadProgress.set('Uploading to Cloudinary…');
-    const fd = new FormData();
-    fd.append('file', this.selectedFile!);
-    fd.append('api_key', sig.apiKey);
-    fd.append('timestamp', sig.timestamp.toString());
-    fd.append('signature', sig.signature);
-    fd.append('folder', sig.folder);
-    const result = await firstValueFrom(
-      this.http.post<{ secure_url: string }>(`https://api.cloudinary.com/v1_1/${sig.cloudName}/image/upload`, fd)
-    );
-    this.uploadProgress.set(null);
-    return result.secure_url;
-  }
-
-  // ── Book Modal ────────────────────────────────────
+  // ── Book Modal ────────────────────────────────
   openCreate(): void {
+    this.form = { name: '', price: null, stock: null, author: '', category: '' };
     this.isEditing = false;
     this.editingId = '';
-    this.form = { name: '', price: null, stock: null, author: '', category: '' };
-    this._resetFile();
-    this.existingCoverUrl = null;
     this.submitError.set(null);
-    this.uploadProgress.set(null);
     this.showModal = true;
   }
 
   openEdit(book: Book): void {
     this.isEditing = true;
     this.editingId = book._id;
-    this.form = { name: book.name, price: book.price, stock: book.stock, author: book.author?._id ?? '', category: book.category?._id ?? '' };
-    this._resetFile();
-    this.existingCoverUrl = book.cover;
+    this.form = {
+      name: book.name,
+      price: book.price,
+      stock: book.stock,
+      author: (book.author as any)?._id ?? book.author,
+      category: (book.category as any)?._id ?? book.category,
+    };
     this.submitError.set(null);
-    this.uploadProgress.set(null);
     this.showModal = true;
   }
 
-  private _resetFile(): void {
-    if (this.previewUrl) URL.revokeObjectURL(this.previewUrl);
-    this.selectedFile = null; this.previewUrl = null; this.uploadedCoverUrl = null;
-  }
-
-  closeModal(): void { this.showModal = false; this._resetFile(); }
+  closeModal(): void { this.showModal = false; }
 
   @HostListener('keydown.escape')
   onEscape(): void { this.closeModal(); this.closeMiniModal(); }
 
   async submitForm(): Promise<void> {
     if (this.submitting()) return;
-    if (!this.isEditing && !this.selectedFile) { this.submitError.set('Please select a cover image.'); return; }
+    const { name, price, stock, author, category } = this.form;
+    if (!name?.trim() || price == null || stock == null || !author || !category) {
+      this.submitError.set('All fields are required.');
+      return;
+    }
     this.submitError.set(null);
     this.submitting.set(true);
     try {
-      const coverUrl = this.selectedFile ? await this.uploadToCloudinary() : this.existingCoverUrl!;
-      const body = { name: this.form.name.trim(), cover: coverUrl, price: this.form.price, stock: this.form.stock, author: this.form.author, category: this.form.category };
-      const req$ = this.isEditing ? this.http.patch(`${this.baseUrl}/book/${this.editingId}`, body) : this.http.post(`${this.baseUrl}/book`, body);
-      await firstValueFrom(req$);
+      const body = { name: name.trim(), price, stock, author, category };
+      if (this.isEditing) {
+        await firstValueFrom(this.http.patch(`${this.baseUrl}/book/${this.editingId}`, body));
+      } else {
+        await firstValueFrom(this.http.post(`${this.baseUrl}/book`, body));
+      }
       this.submitting.set(false);
       this.closeModal();
       this.fetchBooks();
     } catch (err: any) {
       this.submitting.set(false);
-      this.uploadProgress.set(null);
       this.submitError.set(err?.error?.message ?? 'Failed to save book. Please try again.');
     }
   }
 
-  deleteBook(book: Book): void {
-    if (!confirm(`Delete "${book.name}"? This cannot be undone.`)) return;
-    this.http.delete(`${this.baseUrl}/book/${book._id}`).subscribe({
+  // ── Admin actions (called from template) ──────
+  addBook(): void { this.openCreate(); }
+  editBook(id: string): void {
+    const book = this.books().find(b => b._id === id);
+    if (book) this.openEdit(book);
+  }
+  deleteBook(id: string): void {
+    const book = this.books().find(b => b._id === id);
+    if (!confirm(`Delete "${book?.name ?? 'this book'}"? This cannot be undone.`)) return;
+    this.http.delete(`${this.baseUrl}/book/${id}`).subscribe({
       next: () => this.fetchBooks(),
-      error: () => alert('Failed to delete book.'),
+      error: (err) => alert(err?.error?.message ?? 'Failed to delete book.'),
     });
   }
 
-  get currentPreview(): string | null {
-    return this.previewUrl ?? this.uploadedCoverUrl ?? this.existingCoverUrl ?? null;
-  }
-
-  // ── Mini Modal (Author / Category) ──────────────
+  // ── Mini Modal (Author / Category) ───────────
   openMiniModal(type: MiniModalType): void {
     this.miniModal = type;
     this.miniEditing = false;
@@ -247,10 +200,7 @@ export class AdminBooksComponent implements OnInit {
 
   closeMiniModal(): void {
     this.miniModal = null;
-    this.miniEditing = false;
-    this.miniName = '';
-    this.miniBio = '';
-    this.miniError.set(null);
+    this.cancelEditMini();
   }
 
   startEditMini(item: Author | Category): void {
@@ -275,12 +225,10 @@ export class AdminBooksComponent implements OnInit {
     }
     this.miniError.set(null);
     this.miniSubmitting.set(true);
-
     const isAuthor = this.miniModal === 'author';
     const endpoint = isAuthor ? `${this.baseUrl}/author` : `${this.baseUrl}/category`;
     const body: any = { name: this.miniName.trim() };
     if (isAuthor && this.miniBio.trim()) body.bio = this.miniBio.trim();
-
     try {
       if (this.miniEditing) {
         await firstValueFrom(this.http.patch(`${endpoint}/${this.miniEditingId}`, body));
@@ -289,7 +237,6 @@ export class AdminBooksComponent implements OnInit {
       }
       this.miniSubmitting.set(false);
       this.cancelEditMini();
-      // Refresh the list
       this.loadAuthorsAndCategories();
     } catch (err: any) {
       this.miniSubmitting.set(false);
@@ -300,11 +247,23 @@ export class AdminBooksComponent implements OnInit {
   deleteMini(id: string): void {
     const isAuthor = this.miniModal === 'author';
     const label = isAuthor ? 'author' : 'category';
-    if (!confirm(`Delete this ${label}? This will fail if books are still assigned to it.`)) return;
+    if (!confirm(`Delete this ${label}? Books assigned to it may be affected.`)) return;
     const endpoint = isAuthor ? `${this.baseUrl}/author/${id}` : `${this.baseUrl}/category/${id}`;
     this.http.delete(endpoint).subscribe({
       next: () => this.loadAuthorsAndCategories(),
       error: (err) => alert(err?.error?.message ?? `Failed to delete ${label}.`),
     });
+  }
+
+  // ── Helpers ───────────────────────────────────
+  stockClass(stock: number): string {
+    if (stock === 0) return 'bg-red-50 text-red-800 border-red-200';
+    if (stock < 10) return 'bg-amber-50 text-amber-700 border-amber-200';
+    return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+  }
+  stockLabel(stock: number): string {
+    if (stock === 0) return 'Out of Stock';
+    if (stock < 10) return 'Low Stock';
+    return 'In Stock';
   }
 }
