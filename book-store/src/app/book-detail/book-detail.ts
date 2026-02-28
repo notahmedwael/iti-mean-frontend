@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
@@ -7,6 +7,8 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { BookService, Book } from '../services/book.service';
 import { ReviewService, Review } from '../services/review.service';
 import { CartService } from '../services/cart.service';
@@ -20,7 +22,7 @@ import { Auth } from '../core/services/auth';
   templateUrl: './book-detail.html',
   styleUrl: './book-detail.css',
 })
-export class BookDetail implements OnInit {
+export class BookDetail implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private bookService = inject(BookService);
   private reviewService = inject(ReviewService);
@@ -28,6 +30,7 @@ export class BookDetail implements OnInit {
   private wishlistService = inject(WishlistService);
   private formBuilder = inject(FormBuilder);
   private authService = inject(Auth);
+  private destroy$ = new Subject<void>();
 
   book = signal<Book | null>(null);
   reviews = signal<Review[]>([]);
@@ -53,6 +56,18 @@ export class BookDetail implements OnInit {
     this.loadBook(id);
     this.loadReviews(id);
     this.initializeReviewForm();
+    
+    // Subscribe to wishlist changes
+    this.wishlistService.ids$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(ids => {
+        this.isWishlisted.set(id ? ids.includes(id) : false);
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   private initializeReviewForm(): void {
@@ -73,7 +88,6 @@ export class BookDetail implements OnInit {
     this.bookService.getBookById(bookId).subscribe({
       next: (res) => {
         this.book.set(res.data);
-        this.checkIfWishlisted(bookId);
         this.loading.set(false);
       },
       error: () => {
@@ -108,12 +122,8 @@ export class BookDetail implements OnInit {
   toggleWishlist(): void {
     if (this.book()) {
       this.wishlistService.toggle(this.book()!._id);
-      this.isWishlisted.set(!this.isWishlisted());
+      // Signal will be updated automatically via subscription
     }
-  }
-
-  private checkIfWishlisted(bookId: string): void {
-    this.isWishlisted.set(this.wishlistService.isWishlisted(bookId));
   }
 
   submitReview(): void {

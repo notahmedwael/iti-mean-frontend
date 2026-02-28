@@ -155,7 +155,7 @@
                     />
                     <!-- Wishlist Button -->
                     <button
-                      (click)="toggleWishlist(book); $event.stopPropagation()"
+                      (click)="toggleWishlist(book); $event.preventDefault(); $event.stopPropagation()"
                       class="absolute top-3 right-3 p-2 rounded-full bg-white/90 hover:bg-white shadow-md transition z-10"
                       [class.text-red-500]="isWishlisted(book._id)"
                     >
