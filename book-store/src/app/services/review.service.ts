@@ -78,4 +78,16 @@ export class ReviewService {
       }),
     );
   }
+
+  // ── Aliases used by book-detail component ──────────────────────────────────
+  /** Alias for getReviews() */
+  getReviewsByBook(bookId: string): Observable<ReviewsResponse> {
+    return this.http.get<ReviewsResponse>(`${this.baseUrl}/review`, { params: { book: bookId } });
+  }
+
+  /** Alias for addReview() — accepts a payload object */
+  createReview(payload: { book: string; rating: number; comment?: string }): Observable<{ data: Review }> {
+    return this.http.post<{ status: string; data: Review }>(`${this.baseUrl}/review`, payload);
+  }
 }
+

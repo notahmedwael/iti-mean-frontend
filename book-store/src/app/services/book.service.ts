@@ -21,6 +21,7 @@ export interface Book {
   stock: number;
   author: Author;
   category: Category;
+  description?: string;
   createdAt?: string;
   ratingsAverage?: number;
   ratingsQuantity?: number;
