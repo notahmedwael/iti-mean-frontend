@@ -1,7 +1,11 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { tap, BehaviorSubject } from 'rxjs';
-import { jwtDecode } from 'jwt-decode';
+
+interface JwtPayload {
+  userId: string;
+  role: 'User' | 'Admin';
+}
 
 @Injectable({
   providedIn: 'root',
@@ -13,6 +17,15 @@ export class Auth {
 
   isLoggedIn$ = this.loggedIn.asObservable();
 
+  /** Decode the base64 JWT middle segment — no library needed */
+  private decodeToken(token: string): JwtPayload | null {
+    try {
+      return JSON.parse(atob(token.split('.')[1])) as JwtPayload;
+    } catch {
+      return null;
+    }
+  }
+
   register(data: any) {
     return this.http.post(`${this.apiUrl}/users/signup`, data);
   }
@@ -21,6 +34,11 @@ export class Auth {
     return this.http.post<{ token: string }>(`${this.apiUrl}/users/login`, credentials).pipe(
       tap((res) => {
         localStorage.setItem('token', res.token);
+        const payload = this.decodeToken(res.token);
+        if (payload) {
+          localStorage.setItem('userId', payload.userId);
+          localStorage.setItem('role', payload.role);
+        }
         this.loggedIn.next(true);
       }),
     );
@@ -28,6 +46,8 @@ export class Auth {
 
   logout() {
     localStorage.removeItem('token');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('role');
     this.loggedIn.next(false);
   }
 
@@ -35,15 +55,12 @@ export class Auth {
     return this.loggedIn.value;
   }
 
+  getUserId(): string | null {
+    return localStorage.getItem('userId');
+  }
+
   getRole(): string | null {
-    const token = localStorage.getItem('token');
-    if (!token) return null;
-    try {
-      const decoded: any = jwtDecode(token);
-      return decoded.role;
-    } catch {
-      return null;
-    }
+    return localStorage.getItem('role');
   }
 
   isAdmin(): boolean {

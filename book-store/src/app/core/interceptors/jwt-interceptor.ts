@@ -4,12 +4,15 @@ import { Auth } from '../services/auth';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 
+const BACKEND_URL = 'http://localhost:8000';
+
 export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(Auth);
   const router = inject(Router);
   const token = localStorage.getItem('token');
 
-  if (token) {
+  // Only attach the JWT to requests going to our own backend
+  if (token && req.url.startsWith(BACKEND_URL)) {
     req = req.clone({
       setHeaders: {
         Authorization: `Bearer ${token}`,
@@ -19,7 +22,7 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401) {
+      if (error.status === 401 && req.url.startsWith(BACKEND_URL)) {
         authService.logout();
         router.navigate(['/login']);
       } else if (error.status === 403) {
