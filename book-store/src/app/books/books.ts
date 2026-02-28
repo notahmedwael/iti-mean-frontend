@@ -21,19 +21,18 @@ export class Books implements OnInit, AfterViewInit {
   error = signal<string | null>(null);
   addedToCart = signal<string | null>(null);
   wishlistIds = signal<string[]>([]);
-  Math = Math;
-
-  // filters
+  
+  // Filters
   search = '';
   selectedCategory = '';
   selectedAuthor = '';
   minPrice: number | null = null;
   maxPrice: number | null = null;
 
-  // pagination
+  // Pagination State
   currentPage = 1;
-  limit = 10;
-  totalResults = 0;
+  limit = 12; // Using 12 as it divides well into 2, 3, and 4 column grids
+  hasNextPage = false;
 
   constructor(
     private bookService: BookService,
@@ -66,11 +65,17 @@ export class Books implements OnInit, AfterViewInit {
     }).subscribe({
       next: (res) => {
         this.books.set(res.data);
-        this.totalResults = res.len;
+        
+        // If the number of books returned equals our limit, 
+        // we assume there is more data on the next page.
+        this.hasNextPage = res.data.length === this.limit;
+        
         this.loading.set(false);
+        // Smooth scroll to top when page changes
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       },
       error: () => {
-        this.error.set('Failed to load books. Make sure the backend is running.');
+        this.error.set('Failed to load books. Please check your connection.');
         this.loading.set(false);
       },
     });
@@ -111,7 +116,7 @@ export class Books implements OnInit, AfterViewInit {
   }
 
   nextPage(): void {
-    if (this.currentPage < this.totalPages) {
+    if (this.hasNextPage) {
       this.currentPage++;
       this.fetchBooks();
     }
@@ -122,10 +127,6 @@ export class Books implements OnInit, AfterViewInit {
       this.currentPage--;
       this.fetchBooks();
     }
-  }
-
-  get totalPages(): number {
-    return Math.ceil(this.totalResults / this.limit);
   }
 
   get hasActiveFilters(): boolean {
