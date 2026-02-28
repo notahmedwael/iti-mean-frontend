@@ -33,7 +33,7 @@ export class Register {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(8)]],
       passwordConfirm: ['', [Validators.required]],
-      DOB: [''],
+      dob: [''],
     },
     { validators: this.passwordMatchValidator },
   );
