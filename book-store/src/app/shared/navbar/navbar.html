@@ -30,6 +30,44 @@
         </button>
       </div>
 
+      <!-- Wishlist Button -->
+      <button
+        class="relative p-2 text-maroon hover:text-rust transition rounded-full hover:bg-gray-100"
+        title="Wishlist"
+      >
+        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+          <path
+            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+          />
+        </svg>
+        @if ((getWishlistCount() | async)?.length) {
+          <span
+            class="absolute -top-1 -right-1 bg-rust text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center"
+          >
+            {{ (getWishlistCount() | async)?.length }}
+          </span>
+        }
+      </button>
+
+      <!-- Cart Button -->
+      <button
+        class="relative p-2 text-maroon hover:text-rust transition rounded-full hover:bg-gray-100"
+        title="Shopping Cart"
+      >
+        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+          <path
+            d="M9 2C8.45 2 8 2.45 8 3V4H4C2.9 4 2 4.9 2 6V7C2 8.1 2.9 9 4 9H5L6 20C6.05 20.85 6.73 21.5 7.6 21.5H16.4C17.27 21.5 17.95 20.85 18 20L19 9H20C21.1 9 22 8.1 22 7V6C22 4.9 21.1 4 20 4H16V3C16 2.45 15.55 2 15 2H9M9 4H15V3H9V4M6 9H18L17 20H7L6 9M9 11C8.45 11 8 11.45 8 12V18C8 18.55 8.45 19 9 19C9.55 19 10 18.55 10 18V12C10 11.45 9.55 11 9 11M12 11C11.45 11 11 11.45 11 12V18C11 18.55 11.45 19 12 19C12.55 19 13 18.55 13 18V12C13 11.45 12.55 11 12 11M15 11C14.45 11 14 11.45 14 12V18C14 18.55 14.45 19 15 19C15.55 19 16 18.55 16 18V12C16 11.45 15.55 11 15 11Z"
+          />
+        </svg>
+        @if (getCartCount() > 0) {
+          <span
+            class="absolute -top-1 -right-1 bg-rust text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center"
+          >
+            {{ getCartCount() }}
+          </span>
+        }
+      </button>
+
       @if (authService.isLoggedIn$ | async) {
         <button
           (click)="logout()"

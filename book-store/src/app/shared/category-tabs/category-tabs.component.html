@@ -1,0 +1,21 @@
+<div class="bg-white border-y border-[#602314]/10 shadow-sm">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div
+      class="flex gap-2 overflow-x-auto scrollbar-hide py-3"
+    >
+      @for (tab of tabs; track tab; let i = $index) {
+        <button
+          (click)="activeTab = i"
+          [class]="
+            'px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ' +
+            (activeTab === i
+              ? 'bg-[#BC552A] text-white shadow-md'
+              : 'bg-[#FAF6F0] text-[#602314] hover:bg-[#F0E8DC]')
+          "
+        >
+          {{ tab }}
+        </button>
+      }
+    </div>
+  </div>
+</div>

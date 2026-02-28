@@ -1,0 +1,104 @@
+<div
+  class="group bg-white rounded-2xl border border-[#602314]/10 overflow-hidden
+           hover:shadow-xl hover:shadow-[#602314]/10 hover:border-[#602314]/20
+           transition-all duration-300"
+>
+  <!-- Image Container -->
+  <div class="relative overflow-hidden bg-gradient-to-b from-[#FAF6F0] to-[#F0E8DC] aspect-[2/3]">
+    <img
+      [src]="book.cover"
+      [alt]="book.name"
+      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+    />
+
+    <!-- Quick View Overlay -->
+    <div
+      class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100
+               flex items-center justify-center gap-3 transition-opacity duration-300"
+    >
+      <button
+        (click)="onQuickView()"
+        class="bg-white text-[#602314] p-3 rounded-full hover:bg-[#BC552A] hover:text-white
+               transition-colors duration-200"
+      >
+        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+          <path
+            d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"
+          />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Badge -->
+    @if (false) {
+      <div
+        [ngClass]="{
+          'bg-[#BC552A]': false,
+          'bg-[#DD9047]': false,
+          'bg-[#602314]': false
+        }"
+        class="absolute top-3 left-3 text-white text-xs font-bold px-3 py-1 rounded-full"
+      >
+      </div>
+    }
+
+    <!-- Wishlist Button -->
+    <button
+      (click)="toggleWishlist()"
+      [class]="
+        'absolute top-3 right-3 p-2 rounded-full transition-all duration-200 ' +
+        (isWishlisted()
+          ? 'bg-[#BC552A] text-white shadow-lg'
+          : 'bg-white/80 text-[#602314] opacity-0 group-hover:opacity-100 hover:bg-white')
+      "
+    >
+      <svg
+        [class]="
+          'w-5 h-5 ' +
+          (isWishlisted() ? 'fill-current' : 'stroke-current fill-none')
+        "
+        viewBox="0 0 24 24"
+        stroke-width="2"
+      >
+        <path
+          d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+        />
+      </svg>
+    </button>
+  </div>
+
+  <!-- Content -->
+  <div class="p-4">
+    <!-- Title -->
+    <h3 class="font-bold text-[#602314] text-sm line-clamp-2 mb-2 group-hover:text-[#BC552A] transition">
+      {{ book.name }}
+    </h3>
+
+    <!-- Author -->
+    <p class="text-xs text-[#8A7260] mb-3">{{ book.author.name }}</p>
+
+    <!-- Rating -->
+    <div class="mb-3">
+      <app-star-rating [rating]="3.5" [reviews]="0"></app-star-rating>
+    </div>
+
+    <!-- Price -->
+    <div class="flex items-baseline gap-2 mb-4">
+      <span class="text-lg font-black text-[#602314]">{{ formatPrice(book.price) }}</span>
+    </div>
+
+    <!-- Add to Cart Button -->
+    <button
+      (click)="addToCart()"
+      [@cartAdded]="addedState()"
+      [class]="
+        'w-full py-2 rounded-xl font-bold text-sm transition-all duration-200 ' +
+        (addedState() === 'added'
+          ? 'bg-green-500 text-white'
+          : 'bg-[#BC552A] text-white hover:bg-[#A04820]')
+      "
+    >
+      {{ addedState() === 'added' ? '✓ Added' : 'Add to Cart' }}
+    </button>
+  </div>
+</div>

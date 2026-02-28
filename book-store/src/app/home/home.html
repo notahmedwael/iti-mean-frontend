@@ -1,10 +1,22 @@
-<section class="text-center py-20">
-    <h1 class="text-5xl font-black text-maroon mb-4">Welcome to Folio&Co</h1>
-    <p class="text-lg text-text-muted mb-8">Discover your next favourite book.</p>
-    <a
-      routerLink="/books"
-      class="bg-rust text-white px-8 py-3 rounded-full font-bold hover:bg-rust-dark transition shadow-md"
-    >
-      Browse Books
-    </a>
-  </section>
+<div class="bg-[#FAF6F0]">
+  <!-- Hero Section -->
+  <app-hero-section></app-hero-section>
+
+  <!-- Category Tabs -->
+  <app-category-tabs></app-category-tabs>
+
+  <!-- Main Content: Filter Sidebar + Product Grid -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12" data-books>
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <!-- Sidebar -->
+      <div class="lg:col-span-1">
+        <app-filter-sidebar></app-filter-sidebar>
+      </div>
+
+      <!-- Products Grid -->
+      <div class="lg:col-span-3">
+        <app-product-grid></app-product-grid>
+      </div>
+    </div>
+  </div>
+</div>

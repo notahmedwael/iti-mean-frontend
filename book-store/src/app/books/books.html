@@ -160,8 +160,8 @@
                 <h3 class="font-bold text-maroon text-sm leading-tight line-clamp-2 mb-1">
                   {{ book.name }}
                 </h3>
-                <p class="text-text-muted text-xs mb-1">{{ book.author?.name }}</p>
-                <span class="text-xs text-rust/70 font-medium mb-2">{{ book.category?.name }}</span>
+                <p class="text-text-muted text-xs mb-1">{{ book.author.name }}</p>
+                <span class="text-xs text-rust/70 font-medium mb-2">{{ book.category.name }}</span>
                 <p class="text-rust font-bold text-sm mt-auto">${{ book.price.toFixed(2) }}</p>
               </div>
             </a>

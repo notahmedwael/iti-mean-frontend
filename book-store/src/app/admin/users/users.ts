@@ -1,7 +1,6 @@
 import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { PaginationComponent } from '../shared/pagination/pagination';
 
 export interface User {
   id: string;
@@ -16,7 +15,7 @@ export interface User {
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [CommonModule, FormsModule, PaginationComponent],
+  imports: [CommonModule, FormsModule],
   templateUrl: './users.html',
   styleUrls: ['./users.css'],
 })

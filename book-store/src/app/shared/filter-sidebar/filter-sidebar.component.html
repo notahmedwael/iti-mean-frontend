@@ -1,0 +1,114 @@
+<aside class="bg-white rounded-xl border border-[#602314]/10 p-6 h-fit sticky top-24">
+  <div class="flex justify-between items-center mb-5">
+    <h3 class="text-lg font-bold text-[#602314]">Filters</h3>
+    <button
+      (click)="clearFilters()"
+      class="text-sm text-[#BC552A] hover:text-[#A04820] font-medium"
+    >
+      Clear All
+    </button>
+  </div>
+
+  <!-- Categories -->
+  <app-filter-accordion [title]="'Categories'" [defaultOpen]="true">
+    <div class="space-y-3">
+      @for (cat of categories; track cat.id) {
+        <label class="flex items-center gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            [(ngModel)]="selectedCategories[cat.id]"
+            (change)="onFilterChange()"
+            class="w-4 h-4 rounded border-[#602314]/20 accent-[#BC552A]"
+          />
+          <span class="text-sm text-[#602314]">{{ cat.label }}</span>
+          <span class="text-xs text-[#8A7260]">({{ cat.count }})</span>
+        </label>
+      }
+    </div>
+  </app-filter-accordion>
+
+  <!-- Authors -->
+  <app-filter-accordion [title]="'Authors'" [defaultOpen]="false">
+    <div class="space-y-3">
+      @for (author of authors | slice : 0 : 8; track author.id) {
+        <label class="flex items-center gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            [(ngModel)]="selectedAuthors[author.id]"
+            (change)="onFilterChange()"
+            class="w-4 h-4 rounded border-[#602314]/20 accent-[#BC552A]"
+          />
+          <span class="text-sm text-[#602314]">{{ author.label }}</span>
+        </label>
+      }
+    </div>
+  </app-filter-accordion>
+
+  <!-- Price Range -->
+  <app-filter-accordion [title]="'Price'" [defaultOpen]="true">
+    <div class="space-y-4">
+      <div class="flex gap-3">
+        <input
+          type="number"
+          placeholder="Min"
+          [(ngModel)]="minPrice"
+          (change)="onFilterChange()"
+          class="w-1/2 px-3 py-2 border border-[#602314]/20 rounded-lg text-sm text-[#602314] placeholder-[#8A7260]"
+        />
+        <input
+          type="number"
+          placeholder="Max"
+          [(ngModel)]="maxPrice"
+          (change)="onFilterChange()"
+          class="w-1/2 px-3 py-2 border border-[#602314]/20 rounded-lg text-sm text-[#602314] placeholder-[#8A7260]"
+        />
+      </div>
+      <div class="flex justify-between text-sm text-[#8A7260]">
+        <span>{{ formatPrice(priceRange()[0]) }}</span>
+        <span>{{ formatPrice(priceRange()[1]) }}</span>
+      </div>
+    </div>
+  </app-filter-accordion>
+
+  <!-- Rating -->
+  <app-filter-accordion [title]="'Rating'" [defaultOpen]="false">
+    <div class="space-y-3">
+      @for (star of [5, 4, 3, 2, 1]; track star) {
+        <label class="flex items-center gap-3 cursor-pointer">
+          <input
+            type="radio"
+            name="rating"
+            [(ngModel)]="selectedRating"
+            [value]="star"
+            (change)="onFilterChange()"
+            class="w-4 h-4 border-[#602314]/20 accent-[#BC552A]"
+          />
+          <div class="flex items-center gap-2">
+            <app-star-rating
+              [rating]="star"
+              [showReviews]="false"
+            ></app-star-rating>
+            <span class="text-sm text-[#8A7260]">& Up</span>
+          </div>
+        </label>
+      }
+    </div>
+  </app-filter-accordion>
+
+  <!-- Formats -->
+  <app-filter-accordion [title]="'Format'" [defaultOpen]="false">
+    <div class="space-y-3">
+      @for (format of formats; track format) {
+        <label class="flex items-center gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            [(ngModel)]="selectedFormats[format]"
+            (change)="onFilterChange()"
+            class="w-4 h-4 rounded border-[#602314]/20 accent-[#BC552A]"
+          />
+          <span class="text-sm text-[#602314]">{{ format }}</span>
+        </label>
+      }
+    </div>
+  </app-filter-accordion>
+</aside>
