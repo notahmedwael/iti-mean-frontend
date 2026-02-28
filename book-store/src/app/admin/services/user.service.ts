@@ -31,7 +31,7 @@ export class UserService {
     email: string;
     password: string;
     role: string;
-    dob?: string;
+    DOB?: string;
   }): Observable<any> {
     return this.http.post(`${this.apiUrl}/admin/create`, data);
   }

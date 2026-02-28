@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
@@ -30,6 +31,7 @@ export class BookDetail implements OnInit, OnDestroy {
   private wishlistService = inject(WishlistService);
   private formBuilder = inject(FormBuilder);
   private authService = inject(Auth);
+  private http = inject(HttpClient);
   private destroy$ = new Subject<void>();
 
   book = signal<Book | null>(null);
@@ -44,6 +46,9 @@ export class BookDetail implements OnInit, OnDestroy {
   currentUserId = signal<string | null>(null);
   reviewToDelete = signal<string | null>(null);
   deletingReview = signal(false);
+  canReview = signal(false);
+  reviewBlockReason = signal<string | null>(null);
+  private readonly baseUrl = 'http://localhost:8000';
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -52,11 +57,17 @@ export class BookDetail implements OnInit, OnDestroy {
       this.loading.set(false);
       return;
     }
-    this.currentUserId.set(this.authService.getUserId());
+    const userId = this.authService.getUserId();
+    this.currentUserId.set(userId);
     this.loadBook(id);
     this.loadReviews(id);
     this.initializeReviewForm();
-    
+    // Check purchase eligibility only for logged-in (non-admin) users
+    if (userId) {
+      this.checkCanReview(id);
+    } else {
+      this.reviewBlockReason.set('Log in to leave a review.');
+    }
     // Subscribe to wishlist changes
     this.wishlistService.ids$
       .pipe(takeUntil(this.destroy$))
@@ -107,6 +118,36 @@ export class BookDetail implements OnInit, OnDestroy {
         this.reviews.set([]);
       },
     });
+  }
+
+  private checkCanReview(bookId: string): void {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      this.reviewBlockReason.set('Log in to leave a review.');
+      return;
+    }
+    this.http
+      .get<{ status: string; canReview: boolean }>(
+        `${this.baseUrl}/order/can-review/${bookId}`,
+        { headers: { Authorization: `Bearer ${token}` } },
+      )
+      .subscribe({
+        next: (res) => {
+          this.canReview.set(res.canReview);
+          if (!res.canReview) {
+            this.reviewBlockReason.set(
+              'Only customers who have received a delivered order for this book can leave a review.',
+            );
+          }
+        },
+        error: () => {
+          // If the endpoint fails assume not eligible (safe default)
+          this.canReview.set(false);
+          this.reviewBlockReason.set(
+            'Could not verify purchase history. Please try again later.',
+          );
+        },
+      });
   }
 
   addToCart(): void {

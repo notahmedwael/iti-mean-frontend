@@ -1,21 +1,19 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 export interface Review {
   _id: string;
-  book: string;
-  user?: {
-    _id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    name?: string;
-  };
   rating: number;
   comment?: string;
   createdAt: string;
-  updatedAt: string;
+  user: {
+    _id?: string;
+    firstName: string;
+    lastName: string;
+  };
+  book: string;
 }
 
 export interface ReviewsResponse {
@@ -24,52 +22,72 @@ export interface ReviewsResponse {
   data: Review[];
 }
 
-export interface ReviewResponse {
+export interface OrderItem {
+  book: { _id: string } | string;
+  quantity: number;
+  price: number;
+}
+
+export interface Order {
+  _id: string;
+  items: OrderItem[];
+}
+
+export interface MyOrdersResponse {
   status: string;
-  len: number;
-  data: Review;
+  data: { orders: Order[]; total: number; message: string };
 }
 
-export interface CreateReviewPayload {
-  book: string;
-  rating: number;
-  comment?: string;
-}
-
-export interface UpdateReviewPayload {
-  rating?: number;
-  comment?: string;
-}
-
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class ReviewService {
   private baseUrl = 'http://localhost:8000';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
-  getReviewsByBook(bookId: string): Observable<ReviewsResponse> {
-    return this.http.get<ReviewsResponse>(
-      `${this.baseUrl}/review?book=${bookId}`
-    );
+  getReviews(bookId: string): Observable<Review[]> {
+    return this.http
+      .get<ReviewsResponse>(`${this.baseUrl}/review`, { params: { book: bookId } })
+      .pipe(map((res) => res.data));
   }
 
-  createReview(review: CreateReviewPayload): Observable<ReviewResponse> {
-    return this.http.post<ReviewResponse>(`${this.baseUrl}/review`, review);
-  }
-
-  updateReview(
-    reviewId: string,
-    update: UpdateReviewPayload
-  ): Observable<ReviewResponse> {
-    return this.http.patch<ReviewResponse>(
-      `${this.baseUrl}/review/${reviewId}`,
-      update
-    );
+  addReview(bookId: string, rating: number, comment: string): Observable<Review> {
+    return this.http
+      .post<{ status: string; data: Review }>(`${this.baseUrl}/review`, {
+        book: bookId,
+        rating,
+        comment,
+      })
+      .pipe(map((res) => res.data));
   }
 
   deleteReview(reviewId: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/review/${reviewId}`);
   }
+
+  /** Check if the logged-in user has bought this book by scanning their order history */
+  checkPurchased(bookId: string): Observable<boolean> {
+    return this.http.get<MyOrdersResponse>(`${this.baseUrl}/order/my-orders`).pipe(
+      map((res) => {
+        const orders: Order[] = res.data?.orders ?? [];
+        return orders.some((order) =>
+          order.items.some((item) => {
+            const id = typeof item.book === 'string' ? item.book : item.book._id;
+            return id === bookId;
+          }),
+        );
+      }),
+    );
+  }
+
+  // ── Aliases used by book-detail component ──────────────────────────────────
+  /** Alias for getReviews() */
+  getReviewsByBook(bookId: string): Observable<ReviewsResponse> {
+    return this.http.get<ReviewsResponse>(`${this.baseUrl}/review`, { params: { book: bookId } });
+  }
+
+  /** Alias for addReview() — accepts a payload object */
+  createReview(payload: { book: string; rating: number; comment?: string }): Observable<{ data: Review }> {
+    return this.http.post<{ status: string; data: Review }>(`${this.baseUrl}/review`, payload);
+  }
 }
+

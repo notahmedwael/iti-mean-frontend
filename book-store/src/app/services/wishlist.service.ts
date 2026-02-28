@@ -1,65 +1,32 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class WishlistService {
+  private baseUrl = 'http://localhost:8000';
   private _ids = new BehaviorSubject<string[]>([]);
-  public ids$ = this._ids.asObservable();
 
-  constructor() {
-    this.loadFromLocalStorage();
-  }
+  /** Observable set of wishlisted book IDs */
+  ids$: Observable<string[]> = this._ids.asObservable();
 
-  private loadFromLocalStorage(): void {
-    const stored = localStorage.getItem('wishlist');
-    if (stored) {
-      this._ids.next(JSON.parse(stored));
-    }
-  }
+  constructor(private http: HttpClient) { }
 
-  private saveToLocalStorage(): void {
-    localStorage.setItem('wishlist', JSON.stringify(this._ids.value));
-  }
+  toggle(bookId: string): void {
+    const current = this._ids.value;
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    const headers = { Authorization: `Bearer ${token}` };
 
-  toggle(id: string): void {
-    const ids = this._ids.value;
-    const index = ids.indexOf(id);
-    if (index > -1) {
-      ids.splice(index, 1);
+    if (current.includes(bookId)) {
+      this.http
+        .delete(`${this.baseUrl}/wishlist/${bookId}`, { headers })
+        .subscribe(() => this._ids.next(current.filter((id) => id !== bookId)));
     } else {
-      ids.push(id);
+      this.http
+        .post(`${this.baseUrl}/wishlist`, { book: bookId }, { headers })
+        .subscribe(() => this._ids.next([...current, bookId]));
     }
-    this._ids.next(ids);
-    this.saveToLocalStorage();
-  }
-
-  add(id: string): void {
-    if (!this.isWishlisted(id)) {
-      const ids = this._ids.value;
-      ids.push(id);
-      this._ids.next(ids);
-      this.saveToLocalStorage();
-    }
-  }
-
-  remove(id: string): void {
-    const ids = this._ids.value.filter((item) => item !== id);
-    this._ids.next(ids);
-    this.saveToLocalStorage();
-  }
-
-  isWishlisted(id: string): boolean {
-    return this._ids.value.includes(id);
-  }
-
-  clear(): void {
-    this._ids.next([]);
-    this.saveToLocalStorage();
-  }
-
-  getIds(): string[] {
-    return this._ids.value;
   }
 }
