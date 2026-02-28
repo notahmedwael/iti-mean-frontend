@@ -9,6 +9,7 @@ import { Home } from './home/home';
 import { authGuard } from './core/guards/auth-guard';
 import { guestGuard } from './core/guards/guest-guard';
 import { adminGuard } from './core/guards/admin-guard';
+
 import { LayoutComponent } from './admin/layout/layout';
 import { DashboardComponent } from './admin/dashboard/dashboard';
 import { UsersComponent } from './admin/users/users';
@@ -38,11 +39,11 @@ export const routes: Routes = [
   // ── Checkout (no layout) ──────────────────────
   { path: 'checkout', component: OrderSummaryComponent, canActivate: [authGuard] },
 
-  // ── Admin (sidebar layout) ────────────────────
+  // ── Admin (protected by adminGuard) ───────────
   {
     path: 'admin',
     component: LayoutComponent,
-    canActivate: [authGuard, adminGuard],
+    canActivate: [adminGuard], // ← protects the whole admin section
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: DashboardComponent },
@@ -54,4 +55,5 @@ export const routes: Routes = [
 
   // ── Fallback ──────────────────────────────────
   { path: '**', redirectTo: '' },
+  { path: '', redirectTo: '/login', pathMatch: 'full' },
 ];

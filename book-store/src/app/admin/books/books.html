@@ -193,10 +193,20 @@
                 <!-- Cover -->
                 <a [routerLink]="['/admin/books', book._id]" class="block">
                   <div class="relative bg-gray-100 aspect-[3/4] overflow-hidden">
+                    <!-- Fallback initials (shown when no cover) -->
+                    <div class="absolute inset-0 flex items-center justify-center bg-[#FAF6F0]">
+                      <span class="text-3xl font-black text-[#602314]/20">
+                        {{ book.name.slice(0, 2).toUpperCase() }}
+                      </span>
+                    </div>
+
+                    <!-- Cover image (hides fallback if it loads) -->
                     <img
+                      *ngIf="book.cover"
                       [src]="book.cover"
                       [alt]="book.name"
-                      class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                      class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                      (error)="$any($event.target).style.display = 'none'"
                     />
 
                     <!-- Stock badge overlay -->
