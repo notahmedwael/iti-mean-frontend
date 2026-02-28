@@ -1,196 +1,245 @@
-<div class="flex gap-8">
-
-  <!-- ── Sidebar Filters ── -->
-  <aside class="hidden lg:block w-64 flex-shrink-0">
-    <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 sticky top-6">
-      <div class="flex justify-between items-center mb-5">
-        <h2 class="font-black text-maroon text-lg">Filters</h2>
-        @if (hasActiveFilters) {
-          <button
-            (click)="onClearFilters()"
-            class="text-xs text-rust font-semibold hover:underline"
-          >
-            Clear all
-          </button>
-        }
-      </div>
-
-      <!-- Search -->
-      <div class="mb-5">
-        <label class="block text-xs font-bold text-maroon mb-2 uppercase tracking-wide">Search</label>
-        <input
-          type="text"
-          [(ngModel)]="search"
-          (keyup.enter)="onSearch()"
-          placeholder="Search books..."
-          class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-rust"
-        />
-      </div>
-
-      <!-- Category -->
-      <div class="mb-5">
-        <label class="block text-xs font-bold text-maroon mb-2 uppercase tracking-wide">Category</label>
-        <select
-          [(ngModel)]="selectedCategory"
-          (ngModelChange)="onFilterChange()"
-          class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-rust bg-white"
-        >
-          <option value="">All Categories</option>
-          @for (category of categories(); track category._id) {
-            <option [value]="category._id">{{ category.name }}</option>
-          }
-        </select>
-      </div>
-
-      <!-- Author -->
-      <div class="mb-5">
-        <label class="block text-xs font-bold text-maroon mb-2 uppercase tracking-wide">Author</label>
-        <select
-          [(ngModel)]="selectedAuthor"
-          (ngModelChange)="onFilterChange()"
-          class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-rust bg-white"
-        >
-          <option value="">All Authors</option>
-          @for (author of authors(); track author._id) {
-            <option [value]="author._id">{{ author.name }}</option>
-          }
-        </select>
-      </div>
-
-      <!-- Price Range -->
-      <div class="mb-5">
-        <label class="block text-xs font-bold text-maroon mb-2 uppercase tracking-wide">Price Range</label>
-        <div class="flex gap-2">
-          <input
-            type="number"
-            [(ngModel)]="minPrice"
-            placeholder="Min"
-            class="w-1/2 px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-rust"
-          />
-          <input
-            type="number"
-            [(ngModel)]="maxPrice"
-            placeholder="Max"
-            class="w-1/2 px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-rust"
-          />
-        </div>
-      </div>
-
-      <button
-        (click)="onSearch()"
-        class="w-full bg-rust text-white py-2 rounded-full font-bold text-sm hover:bg-rust-dark transition"
-      >
-        Apply Filters
-      </button>
+<div class="min-h-screen bg-gray-50">
+  <!-- Header with Search -->
+  <div class="bg-gradient-to-r from-maroon to-rust text-white py-12 px-4">
+    <div class="max-w-7xl mx-auto">
+      <h1 class="text-4xl md:text-5xl font-black mb-6">Browse Our Collection</h1>
+      <p class="text-lg text-gray-100 mb-8 max-w-2xl">
+        Discover thousands of bestsellers, classics, and hidden gems. Find your perfect read today at unbeatable prices.
+      </p>
     </div>
-  </aside>
+  </div>
 
-  <!-- ── Main Content ── -->
-  <div class="flex-grow min-w-0">
+  <!-- Main Content -->
+  <div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="flex gap-8">
+      <!-- Sidebar -->
+      <aside class="hidden lg:block w-64 flex-shrink-0">
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6 sticky top-4">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="font-black text-maroon text-lg">Filters</h2>
+            @if (hasActiveFilters) {
+              <button
+                (click)="onClearFilters()"
+                class="text-xs text-rust font-semibold hover:underline"
+              >
+                Clear all
+              </button>
+            }
+          </div>
 
-    <!-- Header -->
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-3xl font-black text-maroon">All Books</h1>
-      @if (!loading()) {
-        <p class="text-sm text-text-muted">{{ totalResults }} books found</p>
-      }
-    </div>
+          <!-- Search -->
+          <div class="mb-6">
+            <label class="block text-xs font-bold text-maroon mb-2 uppercase tracking-wide">Search</label>
+            <input
+              type="text"
+              [(ngModel)]="search"
+              (keyup.enter)="onSearch()"
+              placeholder="Search books..."
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-rust"
+            />
+          </div>
 
-    <!-- Mobile search bar -->
-    <div class="flex gap-2 mb-6 lg:hidden">
-      <input
-        type="text"
-        [(ngModel)]="search"
-        (keyup.enter)="onSearch()"
-        placeholder="Search books..."
-        class="flex-grow px-4 py-2 border border-gray-300 rounded-full text-sm outline-none focus:ring-2 focus:ring-rust"
-      />
-      <button
-        (click)="onSearch()"
-        class="bg-rust text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-rust-dark transition"
-      >
-        Search
-      </button>
-    </div>
-
-    <!-- Loading -->
-    @if (loading()) {
-      <div class="flex justify-center items-center py-32">
-        <div class="w-10 h-10 border-4 border-rust border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    }
-
-    <!-- Error -->
-    @if (error()) {
-      <div class="text-center py-20">
-        <p class="text-5xl mb-4">⚠️</p>
-        <p class="text-red-500 font-medium">{{ error() }}</p>
-      </div>
-    }
-
-    <!-- Books Grid -->
-    @if (!loading() && !error()) {
-      @if (books().length === 0) {
-        <div class="text-center py-24 text-text-muted">
-          <p class="text-5xl mb-4">📭</p>
-          <p class="text-lg font-medium">No books found</p>
-          <p class="text-sm mt-1">Try adjusting your search or filters</p>
-          <button
-            (click)="onClearFilters()"
-            class="mt-4 text-rust font-semibold hover:underline text-sm"
-          >
-            Clear all filters
-          </button>
-        </div>
-      } @else {
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-5">
-          @for (book of books(); track book._id) {
-            <a
-              [routerLink]="['/books', book._id]"
-              class="group flex flex-col bg-white rounded-xl shadow-sm hover:shadow-md border border-gray-100 overflow-hidden transition"
+          <!-- Category -->
+          <div class="mb-6">
+            <label class="block text-xs font-bold text-maroon mb-2 uppercase tracking-wide">Category</label>
+            <select
+              [(ngModel)]="selectedCategory"
+              (ngModelChange)="onFilterChange()"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-rust bg-white"
             >
-              <div class="relative bg-gray-100 aspect-[3/4] overflow-hidden">
-                <img
-                  [src]="book.cover"
-                  [alt]="book.name"
-                  class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                />
-              </div>
-              <div class="p-3 flex flex-col flex-grow">
-                <h3 class="font-bold text-maroon text-sm leading-tight line-clamp-2 mb-1">
-                  {{ book.name }}
-                </h3>
-                <p class="text-text-muted text-xs mb-1">{{ book.author.name }}</p>
-                <span class="text-xs text-rust/70 font-medium mb-2">{{ book.category.name }}</span>
-                <p class="text-rust font-bold text-sm mt-auto">${{ book.price.toFixed(2) }}</p>
-              </div>
-            </a>
-          }
-        </div>
+              <option value="">All Categories</option>
+              @for (category of categories(); track category._id) {
+                <option [value]="category._id">{{ category.name }}</option>
+              }
+            </select>
+          </div>
 
-        <!-- Pagination -->
-        <div class="flex justify-between items-center mt-10 pt-6 border-t border-gray-200">
-          <p class="text-sm text-text-muted">
+          <!-- Author -->
+          <div class="mb-6">
+            <label class="block text-xs font-bold text-maroon mb-2 uppercase tracking-wide">Author</label>
+            <select
+              [(ngModel)]="selectedAuthor"
+              (ngModelChange)="onFilterChange()"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-rust bg-white"
+            >
+              <option value="">All Authors</option>
+              @for (author of authors(); track author._id) {
+                <option [value]="author._id">{{ author.name }}</option>
+              }
+            </select>
+          </div>
+
+          <!-- Price Range -->
+          <div class="mb-6">
+            <label class="block text-xs font-bold text-maroon mb-2 uppercase tracking-wide">Price Range</label>
+            <div class="flex gap-2">
+              <input
+                type="number"
+                [(ngModel)]="minPrice"
+                placeholder="Min"
+                class="w-1/2 px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-rust"
+              />
+              <input
+                type="number"
+                [(ngModel)]="maxPrice"
+                placeholder="Max"
+                class="w-1/2 px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-rust"
+              />
+            </div>
+          </div>
+
+          <button
+            (click)="onSearch()"
+            class="w-full bg-rust text-white py-2 rounded-lg font-bold text-sm hover:bg-opacity-90 transition"
+          >
+            Apply Filters
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <div class="flex-grow min-w-0">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8">
+          <h2 class="text-2xl font-black text-maroon">
+            @if (totalResults > 0) {
+              {{ totalResults }} Books Found
+            } @else if (!loading()) {
+              No Books Found
+            }
+          </h2>
+          <div class="text-sm text-gray-600">
             Page {{ currentPage }} of {{ totalPages }}
-          </p>
-          <div class="flex gap-3">
-            <button
-              (click)="prevPage()"
-              [disabled]="currentPage === 1"
-              class="px-5 py-2 rounded-full text-sm font-semibold border border-maroon text-maroon hover:bg-maroon hover:text-white transition disabled:opacity-30 disabled:cursor-not-allowed"
-            >
-              ← Prev
-            </button>
-            <button
-              (click)="nextPage()"
-              [disabled]="currentPage === totalPages"
-              class="px-5 py-2 rounded-full text-sm font-semibold bg-maroon text-white hover:bg-opacity-90 transition disabled:opacity-30 disabled:cursor-not-allowed"
-            >
-              Next →
-            </button>
           </div>
         </div>
-      }
-    }
+
+        <!-- Loading -->
+        @if (loading()) {
+          <div class="flex justify-center items-center py-32">
+            <div class="w-10 h-10 border-4 border-rust border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        }
+
+        <!-- Error -->
+        @if (error()) {
+          <div class="text-center py-20 bg-white rounded-lg border border-red-200 p-8">
+            <p class="text-5xl mb-4">⚠️</p>
+            <p class="text-red-500 font-medium text-lg">{{ error() }}</p>
+          </div>
+        }
+
+        <!-- Books Grid -->
+        @if (!loading() && !error()) {
+          @if (books().length === 0) {
+            <div class="text-center py-24 bg-white rounded-lg border border-gray-200 p-8">
+              <p class="text-5xl mb-4">📭</p>
+              <p class="text-lg font-medium text-gray-700">No books found</p>
+              <p class="text-sm text-gray-600 mt-1">Try adjusting your search or filters</p>
+              <button
+                (click)="onClearFilters()"
+                class="mt-4 text-rust font-semibold hover:underline text-sm"
+              >
+                Clear all filters
+              </button>
+            </div>
+          } @else {
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
+              @for (book of books(); track book._id) {
+                <div class="bg-white rounded-xl shadow-md hover:shadow-xl border border-gray-100 overflow-hidden transition transform hover:-translate-y-1 group cursor-pointer">
+                  <!-- Book Image -->
+                  <a [routerLink]="['/book', book._id]" class="relative bg-gray-100 aspect-[3/4] overflow-hidden block">
+                    <img
+                      [src]="book.cover"
+                      [alt]="book.name"
+                      class="w-full h-full object-cover group-hover:scale-110 transition duration-300"
+                    />
+                    <!-- Wishlist Button -->
+                    <button
+                      (click)="toggleWishlist(book); $event.stopPropagation()"
+                      class="absolute top-3 right-3 p-2 rounded-full bg-white/90 hover:bg-white shadow-md transition z-10"
+                      [class.text-red-500]="isWishlisted(book._id)"
+                    >
+                      <svg 
+                        class="w-5 h-5" 
+                        [class.fill-current]="isWishlisted(book._id)"
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                      </svg>
+                    </button>
+                  </a>
+
+                  <!-- Book Info -->
+                  <div class="p-4 flex flex-col flex-grow">
+                    <a
+                      [routerLink]="['/book', book._id]"
+                      class="hover:text-rust transition"
+                    >
+                      <h3 class="font-bold text-maroon text-sm leading-tight line-clamp-2 mb-1">
+                        {{ book.name }}
+                      </h3>
+                    </a>
+                    <p class="text-gray-600 text-xs mb-1">{{ book.author.name }}</p>
+                    <span class="text-xs text-rust/70 font-medium mb-3">{{ book.category.name }}</span>
+                    
+                    <!-- Price and Stock -->
+                    <div class="mb-3 flex items-baseline justify-between">
+                      <p class="text-rust font-bold text-lg">${{ book.price.toFixed(2) }}</p>
+                      @if (book.stock > 0) {
+                        <p class="text-xs text-green-600 font-medium">In Stock</p>
+                      } @else {
+                        <p class="text-xs text-red-600 font-medium">Out of Stock</p>
+                      }
+                    </div>
+
+                    <!-- Add to Cart with Feedback -->
+                    <button
+                      (click)="addToCart(book)"
+                      [disabled]="book.stock === 0"
+                      class="w-full bg-maroon text-white font-bold py-2 rounded-lg hover:bg-opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                      @if (addedToCart() === book._id) {
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        </svg>
+                        Added!
+                      } @else {
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M9 2C8.45 2 8 2.45 8 3V4H4C2.9 4 2 4.9 2 6V7C2 8.1 2.9 9 4 9H5L6 20C6.05 20.85 6.73 21.5 7.6 21.5H16.4C17.27 21.5 17.95 20.85 18 20L19 9H20C21.1 9 22 8.1 22 7V6C22 4.9 21.1 4 20 4H16V3C16 2.45 15.55 2 15 2H9M9 4H15V3H9V4M6 9H18L17 20H7L6 9" />
+                        </svg>
+                        Add to Cart
+                      }
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <!-- Pagination -->
+            <div class="flex justify-between items-center pt-8 border-t border-gray-200">
+              <p class="text-sm text-gray-600">
+                Showing {{ (currentPage - 1) * limit + 1 }} - {{ Math.min(currentPage * limit, totalResults) }} of {{ totalResults }} books
+              </p>
+              <div class="flex gap-3">
+                <button
+                  (click)="prevPage()"
+                  [disabled]="currentPage === 1"
+                  class="px-5 py-2 rounded-lg text-sm font-semibold border border-maroon text-maroon hover:bg-maroon hover:text-white transition disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  ← Previous
+                </button>
+                <button
+                  (click)="nextPage()"
+                  [disabled]="currentPage === totalPages"
+                  class="px-5 py-2 rounded-lg text-sm font-semibold bg-maroon text-white hover:bg-opacity-90 transition disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  Next →
+                </button>
+              </div>
+            </div>
+          }
+        }
+      </div>
+    </div>
   </div>
 </div>

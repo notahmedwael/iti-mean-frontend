@@ -21,6 +21,7 @@ export interface Book {
   stock: number;
   author: Author;
   category: Category;
+  description?: string;
   createdAt?: string;
 }
 
@@ -77,6 +78,10 @@ export class BookService {
 
   getBookById(id: string): Observable<BookResponse> {
     return this.http.get<BookResponse>(`${this.baseUrl}/book/${id}`);
+  }
+
+  getLatestBooks(): Observable<BooksResponse> {
+    return this.http.get<BooksResponse>(`${this.baseUrl}/book/latest`);
   }
 
   getAllCategories(): Observable<CategoriesResponse> {

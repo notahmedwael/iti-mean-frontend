@@ -1,21 +1,27 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, AfterViewInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { BookService, Book, Category, Author } from '../services/book.service';
+import { CartService } from '../services/cart.service';
+import { WishlistService } from '../services/wishlist.service';
 
 @Component({
   selector: 'app-books',
   standalone: true,
-  imports: [RouterLink, FormsModule],
+  imports: [RouterLink, FormsModule, CommonModule],
   templateUrl: './books.html',
   styleUrl: './books.css',
 })
-export class Books implements OnInit {
+export class Books implements OnInit, AfterViewInit {
   books = signal<Book[]>([]);
   categories = signal<Category[]>([]);
   authors = signal<Author[]>([]);
   loading = signal(true);
   error = signal<string | null>(null);
+  addedToCart = signal<string | null>(null);
+  wishlistIds = signal<string[]>([]);
+  Math = Math;
 
   // filters
   search = '';
@@ -29,7 +35,15 @@ export class Books implements OnInit {
   limit = 10;
   totalResults = 0;
 
-  constructor(private bookService: BookService) {}
+  constructor(
+    private bookService: BookService,
+    private cartService: CartService,
+    private wishlistService: WishlistService
+  ) {}
+
+  ngAfterViewInit(): void {
+    this.wishlistService.ids$.subscribe(ids => this.wishlistIds.set(ids));
+  }
 
   ngOnInit(): void {
     this.fetchBooks();
@@ -116,5 +130,19 @@ export class Books implements OnInit {
 
   get hasActiveFilters(): boolean {
     return !!(this.search || this.selectedCategory || this.selectedAuthor || this.minPrice || this.maxPrice);
+  }
+
+  addToCart(book: Book): void {
+    this.cartService.addItem(book, 1);
+    this.addedToCart.set(book._id);
+    setTimeout(() => this.addedToCart.set(null), 2000);
+  }
+
+  toggleWishlist(book: Book): void {
+    this.wishlistService.toggle(book._id);
+  }
+
+  isWishlisted(bookId: string): boolean {
+    return this.wishlistIds().includes(bookId);
   }
 }

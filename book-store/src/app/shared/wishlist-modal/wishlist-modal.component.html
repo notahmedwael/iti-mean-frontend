@@ -1,0 +1,110 @@
+<!-- Modal Backdrop -->
+<div
+  class="fixed inset-0 backdrop-blur-sm bg-black/20 z-40"
+  (click)="closeModal()"
+></div>
+
+<!-- Modal Content -->
+<div
+  class="fixed right-0 top-0 h-full w-96 bg-white shadow-lg z-50 flex flex-col"
+  (click)="$event.stopPropagation()"
+>
+  <!-- Header -->
+  <div class="flex justify-between items-center p-6 border-b border-gray-200">
+    <h2 class="text-xl font-bold text-maroon">Wishlist</h2>
+    <button
+      (click)="closeModal()"
+      class="text-gray-500 hover:text-maroon transition"
+    >
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M6 18L18 6M6 6l12 12"
+        ></path>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Wishlist Items -->
+  <div class="flex-1 overflow-y-auto p-6">
+    @if (loading()) {
+      <div class="flex items-center justify-center h-full">
+        <p class="text-gray-500">Loading...</p>
+      </div>
+    } @else if (wishlistBooks().length === 0) {
+      <div class="flex flex-col items-center justify-center h-full text-gray-500">
+        <svg
+          class="w-16 h-16 mb-4 text-gray-300"
+          fill="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+          />
+        </svg>
+        <p class="text-center">Your wishlist is empty</p>
+      </div>
+    } @else {
+      <div class="space-y-4">
+        @for (book of wishlistBooks(); track book._id) {
+          <div class="flex gap-4 pb-4 border-b border-gray-100">
+            <!-- Book Image -->
+            <img
+              [src]="book.cover"
+              [alt]="book.name"
+              class="w-20 h-28 object-cover rounded"
+            />
+
+            <!-- Book Details -->
+            <div class="flex-1">
+              <h3 class="font-semibold text-maroon line-clamp-2">
+                {{ book.name }}
+              </h3>
+              <p class="text-sm text-gray-600">by {{ book.author.name }}</p>
+              <p class="text-rust font-semibold mt-2">${{ book.price }}</p>
+
+              <!-- Stock Status -->
+              @if (book.stock > 0) {
+                <p class="text-xs text-green-600 font-medium mt-1">In Stock</p>
+              } @else {
+                <p class="text-xs text-red-600 font-medium mt-1">Out of Stock</p>
+              }
+
+              <!-- Actions -->
+              <div class="flex gap-2 mt-3">
+                @if (book.stock > 0) {
+                  <button
+                    (click)="addToCart(book)"
+                    class="flex-1 bg-rust text-white font-semibold py-1 rounded text-sm hover:bg-opacity-90 transition"
+                  >
+                    Add to Cart
+                  </button>
+                }
+                <button
+                  (click)="removeFromWishlist(book._id)"
+                  class="flex-1 bg-gray-100 text-gray-600 font-semibold py-1 rounded text-sm hover:bg-gray-200 transition"
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Footer -->
+@if (wishlistBooks().length > 0) {
+    <div class="border-t border-gray-200 p-6">
+      <button
+        (click)="closeModal()"
+        class="w-full bg-gray-100 text-maroon font-semibold py-3 rounded-lg hover:bg-gray-200 transition"
+      >
+        Continue Shopping
+      </button>
+    </div>
+  }
+</div>

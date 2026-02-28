@@ -1,86 +1,269 @@
 @if (loading()) {
-    <div class="flex justify-center items-center py-32">
-      <div class="w-10 h-10 border-4 border-rust border-t-transparent rounded-full animate-spin"></div>
+  <div class="flex justify-center items-center py-32">
+    <div class="w-10 h-10 border-4 border-rust border-t-transparent rounded-full animate-spin"></div>
+  </div>
+}
+
+@if (error()) {
+  <div class="text-center py-24">
+    <p class="text-5xl mb-4">📭</p>
+    <p class="text-red-500 font-medium text-lg">{{ error() }}</p>
+    <a routerLink="/books" class="mt-4 inline-block text-rust font-semibold hover:underline">
+      ← Back to Books
+    </a>
+  </div>
+}
+
+@if (!loading() && !error() && book()) {
+  <nav class="text-sm text-text-muted mb-6 flex items-center gap-1 m-2">
+    <a routerLink="/" class="hover:text-rust transition">Home</a>
+    <span>/</span>
+    <a routerLink="/books" class="hover:text-rust transition">Books</a>
+    <span>/</span>
+    <span class="text-maroon font-medium truncate">{{ book()!.name }}</span>
+  </nav>
+
+  <div class="flex flex-col md:flex-row gap-10 mb-16 m-10">
+    <!-- Book Cover and Main Info -->
+    <div class="w-full md:w-72 flex-shrink-0">
+      <img
+        [src]="book()!.cover"
+        [alt]="book()!.name"
+        class="w-full rounded-xl shadow-lg object-cover aspect-[3/4]"
+      />
     </div>
-  }
-  
-  @if (error()) {
-    <div class="text-center py-24">
-      <p class="text-5xl mb-4">📭</p>
-      <p class="text-red-500 font-medium text-lg">{{ error() }}</p>
-      <a routerLink="/books" class="mt-4 inline-block text-rust font-semibold hover:underline">
-        ← Back to Books
-      </a>
-    </div>
-  }
-  
-  @if (!loading() && !error() && book()) {
-    <nav class="text-sm text-text-muted mb-6 flex items-center gap-1">
-      <a routerLink="/" class="hover:text-rust transition">Home</a>
-      <span>/</span>
-      <a routerLink="/books" class="hover:text-rust transition">Books</a>
-      <span>/</span>
-      <span class="text-maroon font-medium truncate">{{ book()!.name }}</span>
-    </nav>
-  
-    <div class="flex flex-col md:flex-row gap-10">
-      <div class="w-full md:w-72 flex-shrink-0">
-        <img
-          [src]="book()!.cover"
-          [alt]="book()!.name"
-          class="w-full rounded-xl shadow-lg object-cover aspect-[3/4]"
-        />
-      </div>
-  
-      <div class="flex-grow">
-        <span class="inline-block bg-cream text-rust text-xs font-bold px-3 py-1 rounded-full border border-rust mb-3 capitalize">
-          {{ book()!.category.name }}
-        </span>
-  
-        <h1 class="text-4xl font-black text-maroon mb-2">{{ book()!.name }}</h1>
-  
-        <p class="text-text-muted text-sm mb-4">
-          By <span class="font-semibold text-maroon">{{ book()!.author.name }}</span>
-        </p>
-  
-        <div class="flex items-center gap-2 mb-6">
-          <span class="text-gold text-xl tracking-wide">★★★★☆</span>
-          <span class="text-xs text-text-muted">(Reviews coming soon)</span>
-        </div>
-  
-        <div class="flex items-center gap-6 mb-8">
-          <p class="text-4xl font-black text-rust">${{ book()!.price.toFixed(2) }}</p>
-          @if (book()!.stock > 0) {
-            <p class="text-sm">
-              <span class="text-green-600 font-semibold">✓ In Stock</span>
-              <span class="text-text-muted ml-1">({{ book()!.stock }} left)</span>
-            </p>
-          } @else {
-            <p class="text-sm text-red-500 font-semibold">✗ Out of Stock</p>
+
+    <div class="flex-grow">
+      <span class="inline-block bg-cream text-rust text-xs font-bold px-3 py-1 rounded-full border border-rust mb-3 capitalize">
+        {{ book()!.category.name }}
+      </span>
+
+      <h1 class="text-4xl font-black text-maroon mb-2">{{ book()!.name }}</h1>
+
+      <p class="text-text-muted text-sm mb-4">
+        By <span class="font-semibold text-maroon">{{ book()!.author.name }}</span>
+      </p>
+
+      <!-- Ratings Section -->
+      <div class="flex items-center gap-3 mb-6">
+        <div class="flex gap-0.5">
+          @for (star of getRatingStars(5); track star) {
+            @if (star <= getAverageRating()) {
+              <span class="text-gold text-lg">★</span>
+            } @else if (star - getAverageRating() < 1 && getAverageRating() % 1 !== 0) {
+              <span class="text-gold text-lg">½</span>
+            } @else {
+              <span class="text-gray-300 text-lg">☆</span>
+            }
           }
         </div>
-  
-        <div class="flex gap-4 flex-wrap">
-          <button
-            [disabled]="book()!.stock === 0"
-            class="bg-rust text-white px-8 py-3 rounded-full font-bold hover:bg-rust-dark transition shadow-md disabled:bg-gray-300 disabled:cursor-not-allowed"
-          >
-            Add to Cart
-          </button>
-          <a
-            routerLink="/books"
-            class="border border-maroon text-maroon px-8 py-3 rounded-full font-bold hover:bg-maroon hover:text-white transition"
-          >
-            ← Back to Books
-          </a>
+        <span class="text-sm font-semibold text-maroon">{{ getAverageRating() }}</span>
+        <span class="text-xs text-text-muted">({{ reviews().length }} reviews)</span>
+      </div>
+
+      <div class="flex items-center gap-6 mb-8">
+        <p class="text-4xl font-black text-rust">${{ book()!.price.toFixed(2) }}</p>
+        @if (book()!.stock > 0) {
+          <p class="text-sm">
+            <span class="text-green-600 font-semibold">✓ In Stock</span>
+            <span class="text-text-muted ml-1">({{ book()!.stock }} left)</span>
+          </p>
+        } @else {
+          <p class="text-sm text-red-500 font-semibold">✗ Out of Stock</p>
+        }
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex gap-4 flex-wrap">
+        <button
+          (click)="addToCart()"
+          [disabled]="book()!.stock === 0"
+          class="bg-rust text-white px-8 py-3 rounded-full font-bold hover:bg-rust-dark transition shadow-md disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center gap-2"
+        >
+          <span>🛒 Add to Cart</span>
+          @if (addedToCart()) {
+            <span class="text-green-300">✓</span>
+          }
+        </button>
+        <button
+          (click)="toggleWishlist()"
+          [class]="'px-8 py-3 rounded-full font-bold transition border-2 flex items-center gap-2 ' +
+                   (isWishlisted()
+                     ? 'bg-red-100 border-red-500 text-red-600 hover:bg-red-200'
+                     : 'border-maroon text-maroon hover:bg-maroon hover:text-white')"
+        >
+          <span>{{ isWishlisted() ? '❤' : '🤍' }}</span>
+          {{ isWishlisted() ? 'Wishlist' : 'Add to Wishlist' }}
+        </button>
+      </div>
+
+      @if (book()!.description || book()!.author.bio) {
+        <div class="mt-10 pt-6 border-t border-gray-200">
+          @if (book()!.description) {
+            <div class="mb-6">
+              <h3 class="text-xs font-bold text-maroon mb-2 uppercase tracking-widest">About This Book</h3>
+              <p class="text-text-muted text-sm leading-relaxed">{{ book()!.description }}</p>
+            </div>
+          }
+          @if (book()!.author.bio) {
+            <div>
+              <h3 class="text-xs font-bold text-maroon mb-2 uppercase tracking-widest">About the Author</h3>
+              <p class="text-text-muted text-sm leading-relaxed">{{ book()!.author.bio }}</p>
+            </div>
+          }
         </div>
-  
-        @if (book()!.author.bio) {
-          <div class="mt-10 pt-6 border-t border-gray-200">
-            <h3 class="text-xs font-bold text-maroon mb-2 uppercase tracking-widest">About the Author</h3>
-            <p class="text-text-muted text-sm leading-relaxed">{{ book()!.author!.bio }}</p>
+      }
+    </div>
+  </div>
+
+  <!-- Reviews Section -->
+  <div class="border-t border-gray-200 pt-12 m-5">
+    <h2 class="text-3xl font-black text-maroon mb-8">Customer Reviews</h2>
+
+    <!-- Existing Reviews -->
+    @if (reviews().length > 0) {
+      <div class="space-y-6 mb-12">
+        @for (review of reviews(); track review._id) {
+          <div class="bg-cream border border-gold/30 rounded-xl p-6">
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <p class="font-semibold text-maroon">
+                  {{ (review.user?.firstName || '') + ' ' + (review.user?.lastName || '') || 'Anonymous' }}
+                </p>
+                <p class="text-xs text-text-muted">{{ formatDate(review.createdAt) }}</p>
+              </div>
+            </div>
+
+            <!-- Rating Stars -->
+            <div class="flex gap-1 mb-3">
+              @for (star of getRatingStars(5); track star) {
+                @if (star <= review.rating) {
+                  <span class="text-gold text-lg">★</span>
+                } @else {
+                  <span class="text-gray-300 text-lg">☆</span>
+                }
+              }
+            </div>
+
+            @if (review.comment) {
+              <p class="text-text-muted text-sm leading-relaxed">{{ review.comment }}</p>
+            }
+
+            <!-- Delete button - only for own reviews -->
+            @if (isOwnReview(review)) {
+              <div class="mt-3 flex gap-2">
+                <button
+                  (click)="deleteReview(review._id)"
+                  class="text-xs text-red-600 hover:text-red-800 transition font-semibold"
+                >
+                  Delete
+                </button>
+              </div>
+            }
           </div>
         }
       </div>
+    } @else {
+      <p class="text-text-muted text-center py-12">No reviews yet. Be the first to review this book!</p>
+    }
+
+    <!-- Add Review Form -->
+    <div class="bg-cream border border-gold/30 rounded-xl p-8">
+      <h3 class="text-xl font-bold text-maroon mb-6">Share Your Review</h3>
+
+      @if (reviewSubmitted()) {
+        <div class="bg-green-100 border border-green-500 text-green-700 px-4 py-3 rounded-lg mb-6">
+          ✓ Thank you! Your review has been posted.
+        </div>
+      }
+
+      <form [formGroup]="reviewForm" (ngSubmit)="submitReview()">
+        <!-- Rating -->
+        <div class="mb-6">
+          <label class="block text-sm font-semibold text-maroon mb-3">Rating *</label>
+          <div class="flex gap-3">
+            @for (star of getRatingStars(5); track star) {
+              <button
+                type="button"
+                (click)="reviewForm.get('rating')?.setValue(star)"
+                [class]="'text-4xl transition transform ' +
+                          (reviewForm.get('rating')?.value >= star
+                            ? 'text-gold scale-110'
+                            : 'text-gray-300 hover:text-gold/70')"
+              >
+                ★
+              </button>
+            }
+          </div>
+          <p class="text-xs text-text-muted mt-2">Selected: {{ reviewForm.get('rating')?.value }} stars</p>
+        </div>
+
+        <!-- Comment -->
+        <div class="mb-6">
+          <label class="block text-sm font-semibold text-maroon mb-2">Comment (Optional)</label>
+          <textarea
+            formControlName="comment"
+            placeholder="Share your thoughts about this book... (min 10, max 500 characters)"
+            class="w-full px-4 py-3 border border-gold/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-rust focus:border-transparent resize-none"
+            rows="4"
+          ></textarea>
+          <div class="mt-2 flex justify-between">
+            <p class="text-xs text-text-muted">
+              {{ reviewForm.get('comment')?.value?.length || 0 }} / 500 characters
+            </p>
+            @if (reviewForm.get('comment')?.errors?.['minlength']) {
+              <p class="text-xs text-red-600">Comment must be at least 10 characters</p>
+            }
+            @if (reviewForm.get('comment')?.errors?.['maxlength']) {
+              <p class="text-xs text-red-600">Comment must not exceed 500 characters</p>
+            }
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          [disabled]="reviewForm.invalid || submittingReview()"
+          class="bg-maroon text-white px-8 py-3 rounded-lg font-bold hover:bg-maroon/90 transition disabled:bg-gray-300 disabled:cursor-not-allowed w-full sm:w-auto"
+        >
+          @if (submittingReview()) {
+            <span>Posting...</span>
+          } @else {
+            <span>Post Review</span>
+          }
+        </button>
+      </form>
     </div>
-  }
+
+    <!-- Delete Confirmation Modal -->
+    @if (reviewToDelete()) {
+      <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-lg p-8 max-w-sm">
+          <h3 class="text-xl font-bold text-maroon mb-3">Delete Review?</h3>
+          <p class="text-text-muted mb-6">
+            Are you sure you want to delete this review? This action cannot be undone.
+          </p>
+          <div class="flex gap-3">
+            <button
+              (click)="cancelDeleteReview()"
+              class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-100 transition"
+            >
+              Cancel
+            </button>
+            <button
+              (click)="confirmDeleteReview()"
+              [disabled]="deletingReview()"
+              class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              @if (deletingReview()) {
+                <span>Deleting...</span>
+              } @else {
+                <span>Delete</span>
+              }
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+}

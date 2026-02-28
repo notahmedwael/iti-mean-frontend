@@ -4,6 +4,7 @@ import { Register } from './auth/register/register';
 import { Books } from './books/books';
 import { BookDetail } from './book-detail/book-detail';
 import { Profile } from './auth/profile/profile';
+import { OrdersHistoryComponent } from './auth/orders-history/orders-history.component';
 import { Home } from './home/home';
 import { authGuard } from './core/guards/auth-guard';
 import { guestGuard } from './core/guards/guest-guard';
@@ -12,6 +13,7 @@ import { LayoutComponent } from './admin/layout/layout';
 import { DashboardComponent } from './admin/dashboard/dashboard';
 import { UsersComponent } from './admin/users/users';
 import { SharedLayoutComponent } from './shared/shared-layout/shared-layout.component';
+import { OrderSummaryComponent } from './checkout/order-summary/order-summary.component';
 
 export const routes: Routes = [
   // ── Auth routes (no layout) ──────────────────
@@ -25,10 +27,14 @@ export const routes: Routes = [
     children: [
       { path: '', component: Home },
       { path: 'books', component: Books },
-      { path: 'books/:id', component: BookDetail },
+      { path: 'book/:id', component: BookDetail },
       { path: 'profile', component: Profile, canActivate: [authGuard] },
+      { path: 'orders', component: OrdersHistoryComponent, canActivate: [authGuard] },
     ],
   },
+
+  // ── Checkout (no layout) ──────────────────────
+  { path: 'checkout', component: OrderSummaryComponent, canActivate: [authGuard] },
 
   // ── Admin (admin layout with sidebar) ────────
   {

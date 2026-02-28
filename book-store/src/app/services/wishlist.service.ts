@@ -58,4 +58,8 @@ export class WishlistService {
     this._ids.next([]);
     this.saveToLocalStorage();
   }
+
+  getIds(): string[] {
+    return this._ids.value;
+  }
 }

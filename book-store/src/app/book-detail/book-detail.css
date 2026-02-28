@@ -1,1 +1,32 @@
 /* book-detail styles */
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Review cards animation */
+.space-y-6 > div {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Star rating hover effect */
+button[type="button"]:hover span {
+  filter: drop-shadow(0 0 8px rgba(212, 165, 116, 0.5));
+}
+
+/* Smooth transitions for buttons */
+button {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Form focus effects */
+textarea:focus {
+  box-shadow: 0 0 0 3px rgba(188, 85, 42, 0.05);
+}

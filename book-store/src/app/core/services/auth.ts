@@ -49,4 +49,15 @@ export class Auth {
   isAdmin(): boolean {
     return this.getRole() === 'Admin';
   }
+
+  getUserId(): string | null {
+    const token = localStorage.getItem('token');
+    if (!token) return null;
+    try {
+      const decoded: any = jwtDecode(token);
+      return decoded.id || decoded.userId || decoded.sub;
+    } catch {
+      return null;
+    }
+  }
 }

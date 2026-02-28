@@ -1,5 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { CartService } from '../../services/cart.service';
 import { BookService, Book } from '../../services/book.service';
 import { bookHover, cartAdded } from '../../animations';
@@ -7,7 +8,7 @@ import { bookHover, cartAdded } from '../../animations';
 @Component({
   selector: 'app-hero-section',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   template: `
     <section
       class="relative overflow-hidden bg-[#FAF6F0] min-h-[600px] flex items-center pt-20"
@@ -45,15 +46,16 @@ import { bookHover, cartAdded } from '../../animations';
             </p>
 
             <div class="flex flex-col sm:flex-row gap-4 mb-8">
-              <button
-                (click)="scrollToBooks()"
+              <a
+                routerLink="/books"
                 class="px-8 py-4 bg-[#BC552A] text-white font-bold rounded-xl
                        hover:bg-[#A04820] transition-all duration-300 shadow-lg
-                       hover:shadow-xl hover:scale-105"
+                       hover:shadow-xl hover:scale-105 inline-block text-center"
               >
                 Browse Collection
-              </button>
+              </a>
               <button
+                (click)="scrollToServices()"
                 class="px-8 py-4 border-2 border-[#BC552A] text-[#BC552A] font-bold
                        rounded-xl hover:bg-[#BC552A] hover:text-white
                        transition-all duration-300"
@@ -202,8 +204,8 @@ export class HeroSectionComponent {
     setTimeout(() => this.addedState.set('idle'), 2000);
   }
 
-  scrollToBooks(): void {
-    const element = document.querySelector('[data-books]');
+  scrollToServices(): void {
+    const element = document.querySelector('[data-services]');
     element?.scrollIntoView({ behavior: 'smooth' });
   }
 }

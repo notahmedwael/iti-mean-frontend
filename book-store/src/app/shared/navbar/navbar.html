@@ -1,6 +1,15 @@
+<!-- Cart Modal -->
+@if (showCartModal()) {
+  <app-cart-modal (close)="closeCartModal()" />
+}
+
+<!-- Wishlist Modal -->
+@if (showWishlistModal()) {
+  <app-wishlist-modal (close)="closeWishlistModal()" />
+}
+
 <div class="bg-maroon text-cream text-center text-sm py-2 font-medium tracking-wide">
-  📚 Free shipping on orders over <strong class="text-white">$35</strong> — Use code
-  <strong class="text-gold">BOOKWORM</strong>
+  📚 Free shipping on orders over <strong class="text-white">$35</strong>
 </div>
 
 <header class="bg-cream border-b border-gray-200">
@@ -11,27 +20,15 @@
       </a>
       <nav class="hidden md:flex space-x-6 text-maroon font-medium text-sm">
         <a routerLink="/books" class="hover:text-rust transition">Browse</a>
-        <a href="#" class="hover:text-rust transition">New Arrivals</a>
-        <a href="#" class="hover:text-rust transition">Best Sellers</a>
+        <a routerLink="/" (click)="scrollToLatestBooks()" class="hover:text-rust transition cursor-pointer">Latest Books</a>
       </nav>
     </div>
 
     <div class="flex items-center space-x-5">
-      <div class="hidden lg:flex border border-gray-300 rounded-full overflow-hidden bg-white">
-        <input
-          type="text"
-          placeholder="Search books..."
-          class="px-4 py-2 outline-none w-64 text-sm text-maroon"
-        />
-        <button
-          class="bg-rust text-white px-5 py-2 text-sm font-semibold hover:bg-rust-dark transition"
-        >
-          Search
-        </button>
-      </div>
 
       <!-- Wishlist Button -->
       <button
+        (click)="openWishlistModal()"
         class="relative p-2 text-maroon hover:text-rust transition rounded-full hover:bg-gray-100"
         title="Wishlist"
       >
@@ -51,6 +48,7 @@
 
       <!-- Cart Button -->
       <button
+        (click)="openCartModal()"
         class="relative p-2 text-maroon hover:text-rust transition rounded-full hover:bg-gray-100"
         title="Shopping Cart"
       >
@@ -69,6 +67,21 @@
       </button>
 
       @if (authService.isLoggedIn$ | async) {
+        <a
+          routerLink="/orders"
+          class="px-4 py-2 text-gray-700 hover:text-maroon font-semibold text-sm transition"
+          title="My Orders"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+        </a>
+        <a
+          routerLink="/profile"
+          class="px-4 py-2 text-maroon border border-maroon rounded-full font-semibold text-sm hover:bg-maroon hover:text-white transition"
+        >
+          Edit Profile
+        </a>
         <button
           (click)="logout()"
           class="bg-maroon text-white px-6 py-2 rounded-full font-semibold text-sm hover:bg-opacity-90 transition cursor-pointer"
