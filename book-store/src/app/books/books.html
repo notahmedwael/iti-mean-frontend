@@ -4,15 +4,10 @@
   <div class="border-b border-gray-200 mb-6">
     <div class="flex gap-1 overflow-x-auto">
       @for (tab of categoryTabs; track tab) {
-        <button
-          (click)="onTabChange(tab)"
-          class="flex-shrink-0 px-4 py-3 text-sm font-medium transition-all border-b-2"
-          [class.border-rust]="activeTab === tab"
-          [class.text-rust]="activeTab === tab"
-          [class.font-bold]="activeTab === tab"
-          [class.border-transparent]="activeTab !== tab"
-          [class.text-text-muted]="activeTab !== tab"
-        >{{ tab }}</button>
+      <button (click)="onTabChange(tab)" class="flex-shrink-0 px-4 py-3 text-sm font-medium transition-all border-b-2"
+        [class.border-rust]="activeTab === tab" [class.text-rust]="activeTab === tab"
+        [class.font-bold]="activeTab === tab" [class.border-transparent]="activeTab !== tab"
+        [class.text-text-muted]="activeTab !== tab">{{ tab }}</button>
       }
     </div>
   </div>
@@ -28,117 +23,92 @@
         <div class="flex items-center gap-2 font-bold text-maroon text-sm">
           <span>⚙</span> Filters
           @if (activeFilterCount > 0) {
-            <span class="bg-rust text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
-              {{ activeFilterCount }}
-            </span>
+          <span class="bg-rust text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+            {{ activeFilterCount }}
+          </span>
           }
         </div>
         @if (hasActiveFilters) {
-          <button (click)="onClearFilters()" class="text-xs text-text-muted hover:text-rust transition">
-            ✕ Clear all
-          </button>
+        <button (click)="onClearFilters()" class="text-xs text-text-muted hover:text-rust transition">
+          ✕ Clear all
+        </button>
         }
       </div>
 
       <!-- Categories -->
       <div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
-        <button
-          (click)="categoriesOpen = !categoriesOpen"
-          class="w-full flex justify-between items-center px-4 py-3 font-bold text-maroon text-sm"
-        >
+        <button (click)="categoriesOpen = !categoriesOpen"
+          class="w-full flex justify-between items-center px-4 py-3 font-bold text-maroon text-sm">
           Categories <span class="text-text-muted text-xs">{{ categoriesOpen ? '∧' : '∨' }}</span>
         </button>
         @if (categoriesOpen) {
-          <div class="px-4 pb-4 flex flex-col gap-2">
-            @for (cat of categories(); track cat._id) {
-              <label class="flex items-center justify-between cursor-pointer group">
-                <div class="flex items-center gap-2">
-                  <div
-                    class="w-4 h-4 rounded border-2 flex items-center justify-center transition cursor-pointer"
-                    [class.bg-rust]="selectedCategory === cat._id"
-                    [class.border-rust]="selectedCategory === cat._id"
-                    [class.border-gray-300]="selectedCategory !== cat._id"
-                    (click)="onCategoryChange(cat._id)"
-                  >
-                    @if (selectedCategory === cat._id) {
-                      <span class="text-white text-xs leading-none">✓</span>
-                    }
-                  </div>
-                  <span class="text-sm text-maroon group-hover:text-rust transition">{{ cat.name | titlecase }}</span>
-                </div>
-              </label>
-            }
-          </div>
+        <div class="px-4 pb-4 flex flex-col gap-2">
+          @for (cat of categories(); track cat._id) {
+          <label class="flex items-center justify-between cursor-pointer group">
+            <div class="flex items-center gap-2">
+              <div class="w-4 h-4 rounded border-2 flex items-center justify-center transition cursor-pointer"
+                [class.bg-rust]="selectedCategory === cat._id" [class.border-rust]="selectedCategory === cat._id"
+                [class.border-gray-300]="selectedCategory !== cat._id" (click)="onCategoryChange(cat._id)">
+                @if (selectedCategory === cat._id) {
+                <span class="text-white text-xs leading-none">✓</span>
+                }
+              </div>
+              <span class="text-sm text-maroon group-hover:text-rust transition">{{ cat.name | titlecase }}</span>
+            </div>
+          </label>
+          }
+        </div>
         }
       </div>
 
       <!-- Authors -->
       <div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
-        <button
-          (click)="authorsOpen = !authorsOpen"
-          class="w-full flex justify-between items-center px-4 py-3 font-bold text-maroon text-sm"
-        >
+        <button (click)="authorsOpen = !authorsOpen"
+          class="w-full flex justify-between items-center px-4 py-3 font-bold text-maroon text-sm">
           Authors <span class="text-text-muted text-xs">{{ authorsOpen ? '∧' : '∨' }}</span>
         </button>
         @if (authorsOpen) {
-          <div class="px-4 pb-4 flex flex-col gap-2">
-            @for (author of authors(); track author._id) {
-              <label class="flex items-center gap-2 cursor-pointer group">
-                <input
-                  type="radio"
-                  name="author"
-                  [value]="author._id"
-                  [(ngModel)]="selectedAuthor"
-                  (change)="onAuthorChange()"
-                  class="accent-rust"
-                />
-                <span class="text-sm text-maroon group-hover:text-rust transition">{{ author.name }}</span>
-              </label>
-            }
-            @if (selectedAuthor) {
-              <button (click)="selectedAuthor = ''; onAuthorChange()" class="text-xs text-rust hover:underline text-left mt-1">
-                Clear author
-              </button>
-            }
-          </div>
+        <div class="px-4 pb-4 flex flex-col gap-2">
+          @for (author of authors(); track author._id) {
+          <label class="flex items-center gap-2 cursor-pointer group">
+            <input type="radio" name="author" [value]="author._id" [(ngModel)]="selectedAuthor"
+              (change)="onAuthorChange()" class="accent-rust" />
+            <span class="text-sm text-maroon group-hover:text-rust transition">{{ author.name }}</span>
+          </label>
+          }
+          @if (selectedAuthor) {
+          <button (click)="selectedAuthor = ''; onAuthorChange()"
+            class="text-xs text-rust hover:underline text-left mt-1">
+            Clear author
+          </button>
+          }
+        </div>
         }
       </div>
 
       <!-- Price Range -->
       <div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
-        <button
-          (click)="priceOpen = !priceOpen"
-          class="w-full flex justify-between items-center px-4 py-3 font-bold text-maroon text-sm"
-        >
+        <button (click)="priceOpen = !priceOpen"
+          class="w-full flex justify-between items-center px-4 py-3 font-bold text-maroon text-sm">
           Price Range <span class="text-text-muted text-xs">{{ priceOpen ? '∧' : '∨' }}</span>
         </button>
         @if (priceOpen) {
-          <div class="px-4 pb-4">
-            <div class="flex gap-2 mt-2">
-              <div class="flex-1">
-                <p class="text-xs text-text-muted mb-1">Min $</p>
-                <input
-                  type="number"
-                  [(ngModel)]="minPrice"
-                  placeholder="0"
-                  class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-maroon outline-none focus:ring-2 focus:ring-rust"
-                />
-              </div>
-              <div class="flex-1">
-                <p class="text-xs text-text-muted mb-1">Max $</p>
-                <input
-                  type="number"
-                  [(ngModel)]="maxPrice"
-                  placeholder="Any"
-                  class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-maroon outline-none focus:ring-2 focus:ring-rust"
-                />
-              </div>
+        <div class="px-4 pb-4">
+          <div class="flex gap-2 mt-2">
+            <div class="flex-1">
+              <p class="text-xs text-text-muted mb-1">Min $</p>
+              <input type="number" [(ngModel)]="minPrice" placeholder="0"
+                class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-maroon outline-none focus:ring-2 focus:ring-rust" />
             </div>
-            <button
-              (click)="onApplyFilters()"
-              class="mt-3 w-full bg-rust text-white text-xs font-bold py-2 rounded-full hover:bg-rust-dark transition"
-            >Apply</button>
+            <div class="flex-1">
+              <p class="text-xs text-text-muted mb-1">Max $</p>
+              <input type="number" [(ngModel)]="maxPrice" placeholder="Any"
+                class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-maroon outline-none focus:ring-2 focus:ring-rust" />
+            </div>
           </div>
+          <button (click)="onApplyFilters()"
+            class="mt-3 w-full bg-rust text-white text-xs font-bold py-2 rounded-full hover:bg-rust-dark transition">Apply</button>
+        </div>
         }
       </div>
 
@@ -151,183 +121,173 @@
       <div class="flex items-center justify-between mb-4">
         <div>
           @if (!loading()) {
-            <p class="text-sm font-bold text-maroon">Showing {{ totalResults }} books</p>
-            <p class="text-xs text-text-muted">in all categories</p>
+          <p class="text-sm font-bold text-maroon">Showing {{ totalResults }} books</p>
+          <p class="text-xs text-text-muted">in all categories</p>
           }
         </div>
         <div class="flex items-center gap-3">
-          <select
-            [(ngModel)]="sortBy"
-            class="border border-gray-200 rounded-lg px-3 py-2 text-sm text-maroon bg-white outline-none focus:ring-2 focus:ring-rust"
-          >
-            <option>Most Popular</option>
-            <option>Price: Low to High</option>
-            <option>Price: High to Low</option>
-            <option>Newest First</option>
+          <select [(ngModel)]="sortBy" (ngModelChange)="onSortChange()"
+            class="border border-gray-200 rounded-lg px-3 py-2 text-sm text-maroon bg-white outline-none focus:ring-2 focus:ring-rust">
+            @for (opt of sortOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+            }
           </select>
           <div class="flex border border-gray-200 rounded-lg overflow-hidden">
-            <button
-              (click)="viewMode = 'grid'"
-              class="px-3 py-2 transition"
-              [class.bg-rust]="viewMode === 'grid'"
-              [class.text-white]="viewMode === 'grid'"
-              [class.text-text-muted]="viewMode !== 'grid'"
-            >⊞</button>
-            <button
-              (click)="viewMode = 'list'"
-              class="px-3 py-2 transition"
-              [class.bg-rust]="viewMode === 'list'"
-              [class.text-white]="viewMode === 'list'"
-              [class.text-text-muted]="viewMode !== 'list'"
-            >☰</button>
+            <button (click)="viewMode = 'grid'" class="px-3 py-2 transition" [class.bg-rust]="viewMode === 'grid'"
+              [class.text-white]="viewMode === 'grid'" [class.text-text-muted]="viewMode !== 'grid'">⊞</button>
+            <button (click)="viewMode = 'list'" class="px-3 py-2 transition" [class.bg-rust]="viewMode === 'list'"
+              [class.text-white]="viewMode === 'list'" [class.text-text-muted]="viewMode !== 'list'">☰</button>
           </div>
         </div>
       </div>
 
       <!-- Loading -->
       @if (loading()) {
-        <div class="flex justify-center items-center py-32">
-          <div class="w-10 h-10 border-4 border-rust border-t-transparent rounded-full animate-spin"></div>
-        </div>
+      <div class="flex justify-center items-center py-32">
+        <div class="w-10 h-10 border-4 border-rust border-t-transparent rounded-full animate-spin"></div>
+      </div>
       }
 
       <!-- Error -->
       @if (error()) {
-        <div class="text-center py-20">
-          <p class="text-5xl mb-3">⚠️</p>
-          <p class="text-red-500 font-medium">{{ error() }}</p>
-        </div>
+      <div class="text-center py-20">
+        <p class="text-5xl mb-3">⚠️</p>
+        <p class="text-red-500 font-medium">{{ error() }}</p>
+      </div>
       }
 
       @if (!loading() && !error()) {
 
-        <!-- Trending Now bar -->
-        <div class="flex items-center gap-2 mb-4 py-2 border-b border-gray-100">
-          <span class="text-rust text-sm">📈</span>
-          <span class="text-sm font-bold text-maroon">Trending Now</span>
-        </div>
+      <!-- Trending Now bar -->
+      <div class="flex items-center gap-2 mb-4 py-2 border-b border-gray-100">
+        <span class="text-rust text-sm">📈</span>
+        <span class="text-sm font-bold text-maroon">Trending Now</span>
+      </div>
 
-        <!-- Empty state -->
-        @if (books().length === 0) {
-          <div class="text-center py-24 text-text-muted">
-            <p class="text-5xl mb-3">📭</p>
-            <p class="font-medium">No books found</p>
-            <button (click)="onClearFilters()" class="mt-3 text-rust text-sm font-semibold hover:underline">
-              Clear filters
+      <!-- Empty state -->
+      @if (books().length === 0) {
+      <div class="text-center py-24 text-text-muted">
+        <p class="text-5xl mb-3">📭</p>
+        <p class="font-medium">No books found</p>
+        <button (click)="onClearFilters()" class="mt-3 text-rust text-sm font-semibold hover:underline">
+          Clear filters
+        </button>
+      </div>
+      } @else {
+
+      <!-- Grid View -->
+      @if (viewMode === 'grid') {
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+        @for (book of books(); track book._id) {
+        <div
+          class="group bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition overflow-hidden flex flex-col">
+
+          <!-- Cover -->
+          <div class="relative aspect-[3/4] overflow-hidden bg-gray-50">
+            <a [routerLink]="['/books', book._id]">
+              <img [src]="book.cover" [alt]="book.name"
+                class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+            </a>
+            <!-- Discount badge -->
+            <span class="absolute bottom-2 right-2 bg-rust text-white text-xs font-black px-2 py-1 rounded-full">
+              -30%
+            </span>
+            <!-- Wishlist -->
+            <button
+              class="absolute top-2 right-2 w-7 h-7 bg-white/80 rounded-full flex items-center justify-center text-text-muted hover:text-rust transition opacity-0 group-hover:opacity-100">
+              ♡
             </button>
           </div>
-        } @else {
 
-          <!-- Grid View -->
-          @if (viewMode === 'grid') {
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-              @for (book of books(); track book._id) {
-                <div class="group bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition overflow-hidden flex flex-col">
+          <!-- Info -->
+          <div class="p-3 flex flex-col flex-grow">
+            <p class="text-rust text-xs font-bold uppercase tracking-wide mb-1">{{ book.category?.name }}</p>
+            <a [routerLink]="['/books', book._id]"
+              class="font-bold text-maroon text-sm leading-tight hover:text-rust transition mb-1 line-clamp-2">
+              {{ book.name }}
+            </a>
+            <p class="text-text-muted text-xs mb-2">{{ book.author?.name }}</p>
 
-                  <!-- Cover -->
-                  <div class="relative aspect-[3/4] overflow-hidden bg-gray-50">
-                    <a [routerLink]="['/books', book._id]">
-                      <img
-                        [src]="book.cover"
-                        [alt]="book.name"
-                        class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                      />
-                    </a>
-                    <!-- Discount badge -->
-                    <span class="absolute bottom-2 right-2 bg-rust text-white text-xs font-black px-2 py-1 rounded-full">
-                      -30%
-                    </span>
-                    <!-- Wishlist -->
-                    <button class="absolute top-2 right-2 w-7 h-7 bg-white/80 rounded-full flex items-center justify-center text-text-muted hover:text-rust transition opacity-0 group-hover:opacity-100">
-                      ♡
-                    </button>
-                  </div>
-
-                  <!-- Info -->
-                  <div class="p-3 flex flex-col flex-grow">
-                    <p class="text-rust text-xs font-bold uppercase tracking-wide mb-1">{{ book.category?.name }}</p>
-                    <a [routerLink]="['/books', book._id]" class="font-bold text-maroon text-sm leading-tight hover:text-rust transition mb-1 line-clamp-2">
-                      {{ book.name }}
-                    </a>
-                    <p class="text-text-muted text-xs mb-2">{{ book.author?.name }}</p>
-
-                    <!-- Stars — all empty until reviews ready -->
-                    <div class="flex items-center gap-1 mb-2">
-                      <div class="flex text-gray-300 text-xs">
-                        @for (s of emptyStars(); track $index) { ★ }
-                      </div>
-                      <span class="text-xs text-text-muted">(0)</span>
-                    </div>
-
-                    <!-- Price -->
-                    <div class="flex items-center gap-2 mb-3 mt-auto">
-                      <span class="text-maroon font-black text-sm">${{ book.price.toFixed(2) }}</span>
-                      <span class="text-text-muted text-xs line-through">${{ getOriginalPrice(book.price) }}</span>
-                    </div>
-
-                    <!-- Add to Cart -->
-                    <button class="w-full flex items-center justify-center gap-2 bg-rust text-white text-xs font-bold py-2 rounded-full hover:bg-rust-dark transition">
-                      🛒 Add to Cart
-                    </button>
-                  </div>
-                </div>
-              }
+            <!-- Stars — real ratings from API -->
+            <div class="flex items-center gap-1 mb-2">
+              <div class="flex text-xs">
+                <span class="text-amber-400">@for (s of filledStars(book.ratingsAverage ?? 0); track $index) { ★
+                  }</span>
+                <span class="text-gray-300">@for (s of emptyStars(book.ratingsAverage ?? 0); track $index) { ★ }</span>
+              </div>
+              <span class="text-xs text-text-muted">({{ book.ratingsQuantity ?? 0 }})</span>
             </div>
-          }
 
-          <!-- List View -->
-          @if (viewMode === 'list') {
-            <div class="flex flex-col gap-3">
-              @for (book of books(); track book._id) {
-                <div class="group bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition flex gap-4 p-4">
-                  <a [routerLink]="['/books', book._id]" class="w-20 h-28 flex-shrink-0 rounded-lg overflow-hidden bg-gray-50">
-                    <img [src]="book.cover" [alt]="book.name" class="w-full h-full object-cover" />
-                  </a>
-                  <div class="flex-grow flex flex-col justify-between">
-                    <div>
-                      <p class="text-rust text-xs font-bold uppercase mb-1">{{ book.category?.name }}</p>
-                      <a [routerLink]="['/books', book._id]" class="font-bold text-maroon hover:text-rust transition">{{ book.name }}</a>
-                      <p class="text-text-muted text-xs mt-1">{{ book.author?.name }}</p>
-                      <div class="flex items-center gap-1 mt-1">
-                        <div class="flex text-gray-300 text-xs">
-                          @for (s of emptyStars(); track $index) { ★ }
-                        </div>
-                        <span class="text-xs text-text-muted">(0)</span>
-                      </div>
-                    </div>
-                    <div class="flex items-center justify-between mt-2">
-                      <div class="flex items-center gap-2">
-                        <span class="text-maroon font-black">${{ book.price.toFixed(2) }}</span>
-                        <span class="text-text-muted text-sm line-through">${{ getOriginalPrice(book.price) }}</span>
-                        <span class="bg-rust text-white text-xs font-bold px-2 py-0.5 rounded-full">-30%</span>
-                      </div>
-                      <button class="flex items-center gap-1 bg-rust text-white text-xs font-bold px-4 py-2 rounded-full hover:bg-rust-dark transition">
-                        🛒 Add to Cart
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              }
+            <!-- Price -->
+            <div class="flex items-center gap-2 mb-3 mt-auto">
+              <span class="text-maroon font-black text-sm">${{ book.price.toFixed(2) }}</span>
+              <span class="text-text-muted text-xs line-through">${{ getOriginalPrice(book.price) }}</span>
             </div>
-          }
 
-          <!-- Pagination -->
-          <div class="flex justify-between items-center mt-8 pt-6 border-t border-gray-100">
-            <p class="text-sm text-text-muted">Page {{ currentPage }} of {{ totalPages }}</p>
-            <div class="flex gap-2">
+            <!-- Add to Cart -->
+            <button
+              class="w-full flex items-center justify-center gap-2 bg-rust text-white text-xs font-bold py-2 rounded-full hover:bg-rust-dark transition">
+              🛒 Add to Cart
+            </button>
+          </div>
+        </div>
+        }
+      </div>
+      }
+
+      <!-- List View -->
+      @if (viewMode === 'list') {
+      <div class="flex flex-col gap-3">
+        @for (book of books(); track book._id) {
+        <div
+          class="group bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition flex gap-4 p-4">
+          <a [routerLink]="['/books', book._id]" class="w-20 h-28 flex-shrink-0 rounded-lg overflow-hidden bg-gray-50">
+            <img [src]="book.cover" [alt]="book.name" class="w-full h-full object-cover" />
+          </a>
+          <div class="flex-grow flex flex-col justify-between">
+            <div>
+              <p class="text-rust text-xs font-bold uppercase mb-1">{{ book.category?.name }}</p>
+              <a [routerLink]="['/books', book._id]" class="font-bold text-maroon hover:text-rust transition">{{
+                book.name }}</a>
+              <p class="text-text-muted text-xs mt-1">{{ book.author?.name }}</p>
+              <div class="flex items-center gap-1 mt-1">
+                <span class="flex text-amber-400 text-xs">@for (s of filledStars(book.ratingsAverage ?? 0); track
+                  $index) { ★ }</span>
+                <span class="flex text-gray-300 text-xs">@for (s of emptyStars(book.ratingsAverage ?? 0); track $index)
+                  { ★ }</span>
+                <span class="text-xs text-text-muted">({{ book.ratingsQuantity ?? 0 }})</span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between mt-2">
+              <div class="flex items-center gap-2">
+                <span class="text-maroon font-black">${{ book.price.toFixed(2) }}</span>
+                <span class="text-text-muted text-sm line-through">${{ getOriginalPrice(book.price) }}</span>
+                <span class="bg-rust text-white text-xs font-bold px-2 py-0.5 rounded-full">-30%</span>
+              </div>
               <button
-                (click)="prevPage()"
-                [disabled]="currentPage === 1"
-                class="px-5 py-2 rounded-full text-sm font-semibold border border-maroon text-maroon hover:bg-maroon hover:text-white transition disabled:opacity-30 disabled:cursor-not-allowed"
-              >← Prev</button>
-              <button
-                (click)="nextPage()"
-                [disabled]="currentPage === totalPages"
-                class="px-5 py-2 rounded-full text-sm font-semibold bg-maroon text-white hover:bg-opacity-90 transition disabled:opacity-30 disabled:cursor-not-allowed"
-              >Next →</button>
+                class="flex items-center gap-1 bg-rust text-white text-xs font-bold px-4 py-2 rounded-full hover:bg-rust-dark transition">
+                🛒 Add to Cart
+              </button>
             </div>
           </div>
+        </div>
         }
+      </div>
+      }
+
+      <!-- Pagination -->
+      <div class="flex justify-between items-center mt-8 pt-6 border-t border-gray-100">
+        <p class="text-sm text-text-muted">Page {{ currentPage }} of {{ totalPages }}</p>
+        <div class="flex gap-2">
+          <button (click)="prevPage()" [disabled]="currentPage === 1"
+            class="px-5 py-2 rounded-full text-sm font-semibold border border-maroon text-maroon hover:bg-maroon hover:text-white transition disabled:opacity-30 disabled:cursor-not-allowed">←
+            Prev</button>
+          <button (click)="nextPage()" [disabled]="currentPage === totalPages"
+            class="px-5 py-2 rounded-full text-sm font-semibold bg-maroon text-white hover:bg-opacity-90 transition disabled:opacity-30 disabled:cursor-not-allowed">Next
+            →</button>
+        </div>
+      </div>
+      }
       }
     </div>
   </div>

@@ -31,7 +31,9 @@ export class Login {
         next: (response) => {
           this.isLoading = false;
           this.successMessage = 'Welcome back! Redirecting...';
-          setTimeout(() => this.router.navigate(['/books']), 1000);
+          const role = this.authService.getRole();
+          const destination = role === 'Admin' ? '/admin/dashboard' : '/books';
+          setTimeout(() => this.router.navigate([destination]), 800);
         },
         error: (err) => {
           this.isLoading = false;

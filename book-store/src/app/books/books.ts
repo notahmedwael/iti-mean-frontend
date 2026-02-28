@@ -35,15 +35,26 @@ export class Books implements OnInit {
   categoriesOpen = true;
 
   // sort & view
-  sortBy = 'Most Popular';
+  sortBy = 'createdAt';  // backend sort param — oldest first by default
   viewMode: 'grid' | 'list' = 'grid';
+
+  readonly sortOptions: { label: string; value: string }[] = [
+    { label: 'Oldest First', value: 'createdAt' },
+    { label: 'Newest First', value: '-createdAt' },
+    { label: 'Top Rated', value: '-ratingsAverage' },
+    { label: 'Lowest Rated', value: 'ratingsAverage' },
+    { label: 'Title A → Z', value: 'name' },
+    { label: 'Title Z → A', value: '-name' },
+    { label: 'Price Low → High', value: 'price' },
+    { label: 'Price High → Low', value: '-price' },
+  ];
 
   // pagination
   currentPage = 1;
   limit = 12;
   totalResults = 0;
 
-  constructor(private bookService: BookService) {}
+  constructor(private bookService: BookService) { }
 
   ngOnInit(): void {
     this.fetchBooks();
@@ -58,6 +69,7 @@ export class Books implements OnInit {
       page: this.currentPage,
       limit: this.limit,
       search: this.search || undefined,
+      sort: this.sortBy || undefined,
       category: this.selectedCategory || undefined,   // ✅ sent to API
       author: this.selectedAuthor || undefined,       // ✅ sent to API
       minPrice: this.minPrice ?? undefined,
@@ -78,14 +90,14 @@ export class Books implements OnInit {
   fetchCategories(): void {
     this.bookService.getAllCategories().subscribe({
       next: (res) => this.categories.set(res.data),
-      error: () => {},
+      error: () => { },
     });
   }
 
   fetchAuthors(): void {
     this.bookService.getAllAuthors().subscribe({
       next: (res) => this.authors.set(res.data),
-      error: () => {},
+      error: () => { },
     });
   }
 
@@ -103,6 +115,11 @@ export class Books implements OnInit {
   }
 
   onAuthorChange(): void {
+    this.currentPage = 1;
+    this.fetchBooks();
+  }
+
+  onSortChange(): void {
     this.currentPage = 1;
     this.fetchBooks();
   }
@@ -139,6 +156,7 @@ export class Books implements OnInit {
   // Price helpers
   getOriginalPrice(price: number): string { return (price * 1.3).toFixed(2); }
 
-  // Stars — all empty/zero until reviews API is ready
-  emptyStars(): number[] { return Array(5).fill(0); }
+  // Stars — uses real ratingsAverage from API
+  filledStars(rating: number): number[] { return Array(Math.round(rating || 0)).fill(0); }
+  emptyStars(rating: number): number[] { return Array(5 - Math.round(rating || 0)).fill(0); }
 }
