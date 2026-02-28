@@ -21,7 +21,7 @@
     <nav class="flex flex-col gap-1">
       <!-- Dashboard -->
       <a
-        routerLink="/dashboard"
+        [routerLink]="['/admin/dashboard']"
         routerLinkActive="sidebar-active"
         class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-white/75 hover:bg-white/10 transition-colors duration-200"
       >
@@ -42,7 +42,7 @@
 
       <!-- Books -->
       <a
-        routerLink="/books"
+        [routerLink]="['/admin/books']"
         routerLinkActive="sidebar-active"
         class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-white/75 hover:bg-white/10 transition-colors duration-200"
       >
@@ -61,7 +61,7 @@
 
       <!-- Orders -->
       <a
-        routerLink="/orders"
+        [routerLink]="['/admin/orders']"
         routerLinkActive="sidebar-active"
         class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-white/75 hover:bg-white/10 transition-colors duration-200"
       >
@@ -81,7 +81,7 @@
 
       <!-- Users -->
       <a
-        routerLink="/users"
+        [routerLink]="['/admin/users']"
         routerLinkActive="sidebar-active"
         class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-white/75 hover:bg-white/10 transition-colors duration-200"
       >
