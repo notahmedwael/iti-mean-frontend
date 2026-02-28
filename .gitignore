@@ -10,3 +10,6 @@ node_modules/
 .vscode/
 .idea/
 bookstore_project_plan.md
+# Local API test reports
+ORDER_PLACEMENT_TEST_REPORT.md
+PAYLOAD_FIX_SUMMARY.md
