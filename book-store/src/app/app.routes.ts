@@ -19,11 +19,11 @@ import { AdminBooksComponent } from './admin/books/books';
 import { AdminOrdersComponent } from './admin/orders/orders';
 
 export const routes: Routes = [
-  // ── Auth routes (no layout) ──────────────────
+  // ── Auth (no layout) ──────────────────────────
   { path: 'login', component: Login, canActivate: [guestGuard] },
   { path: 'register', component: Register, canActivate: [guestGuard] },
 
-  // ── Main pages with shared layout ───────────
+  // ── Main pages with shared layout ─────────────
   {
     path: '',
     component: SharedLayoutComponent,
@@ -43,7 +43,7 @@ export const routes: Routes = [
   {
     path: 'admin',
     component: LayoutComponent,
-    canActivate: [adminGuard], // ← protects the whole admin section
+    canActivate: [adminGuard],
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: DashboardComponent },
@@ -55,5 +55,4 @@ export const routes: Routes = [
 
   // ── Fallback ──────────────────────────────────
   { path: '**', redirectTo: '' },
-  { path: '', redirectTo: '/login', pathMatch: 'full' },
 ];

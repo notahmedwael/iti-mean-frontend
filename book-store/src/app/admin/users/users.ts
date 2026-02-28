@@ -1,18 +1,9 @@
 import { Component, OnInit, HostListener, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: 'Administrator' | 'Editor' | 'Customer';
-  status: 'active' | 'banned';
-  avatar: string;
-  joinedDate: string;
-}
+import { User } from '../services/user.service';
 import { PaginationComponent } from '../shared/pagination/pagination';
-import { UserService, User } from '../services/user.service';
+import { UserService, User as UserModel } from '../services/user.service';
 import { UserModal } from '../components/user-modal/user-modal';
 
 @Component({
