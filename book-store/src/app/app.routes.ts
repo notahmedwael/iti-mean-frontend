@@ -11,7 +11,6 @@ import { LayoutComponent } from './admin/layout/layout';
 import { DashboardComponent } from './admin/dashboard/dashboard';
 import { AdminBooksComponent } from './admin/books/books';
 import { UsersComponent } from './admin/users/users';
-import { AdminBooksComponent } from './admin/books/books';
 import { AdminOrdersComponent } from './admin/orders/orders';
 
 export const routes: Routes = [

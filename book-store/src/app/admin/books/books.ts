@@ -1,6 +1,6 @@
 import { Component, OnInit, signal, HostListener } from '@angular/core';
-imprt { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';o
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { PaginationComponent } from '../shared/pagination/pagination';
 import { BookService, Book, Author, Category } from '../../services/book.service';
