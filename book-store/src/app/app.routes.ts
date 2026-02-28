@@ -11,18 +11,20 @@ import { LayoutComponent } from './admin/layout/layout';
 import { DashboardComponent } from './admin/dashboard/dashboard';
 import { AdminBooksComponent } from './admin/books/books';
 import { UsersComponent } from './admin/users/users';
+import { AdminBooksComponent } from './admin/books/books';
+import { AdminOrdersComponent } from './admin/orders/orders';
 
 export const routes: Routes = [
   // ── Auth (no layout wrapper) ──────────────────
   { path: 'login', component: Login, canActivate: [guestGuard] },
   { path: 'register', component: Register, canActivate: [guestGuard] },
 
-  // ── User-facing pages (shared layout via app.html) ──
+  // ── User-facing ───────────────────────────────
   { path: 'books', component: Books },
   { path: 'books/:id', component: BookDetail },
   { path: 'profile', component: Profile, canActivate: [authGuard] },
 
-  // ── Admin (admin layout with sidebar) ────────
+  // ── Admin (sidebar layout) ────────────────────
   {
     path: 'admin',
     component: LayoutComponent,
@@ -32,6 +34,7 @@ export const routes: Routes = [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'books', component: AdminBooksComponent },
       { path: 'users', component: UsersComponent },
+      { path: 'orders', component: AdminOrdersComponent },
     ],
   },
 

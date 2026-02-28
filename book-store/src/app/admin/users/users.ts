@@ -1,94 +1,54 @@
-import { Component, OnInit, HostListener } from '@angular/core';
+import { Component, OnInit, HostListener, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PaginationComponent } from '../shared/pagination/pagination';
-
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: 'Administrator' | 'Editor' | 'Customer';
-  status: 'active' | 'banned';
-  avatar: string;
-  joinedDate: string;
-}
+import { UserService, User } from '../services/user.service';
+import { UserModal } from '../components/user-modal/user-modal';
 
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [CommonModule, FormsModule, PaginationComponent],
+  imports: [CommonModule, FormsModule, PaginationComponent, UserModal],
   templateUrl: './users.html',
   styleUrls: ['./users.css'],
 })
 export class UsersComponent implements OnInit {
-  // ── Data ────────────────────────────────────────
-  allUsers: User[] = [
-    {
-      id: '1',
-      name: 'Sarah Mitchell',
-      email: 'sarah.mitchell@example.com',
-      role: 'Administrator',
-      status: 'active',
-      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop',
-      joinedDate: 'Jan 15, 2024',
-    },
-    {
-      id: '2',
-      name: 'James Anderson',
-      email: 'james.anderson@example.com',
-      role: 'Customer',
-      status: 'active',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop',
-      joinedDate: 'Feb 3, 2024',
-    },
-    {
-      id: '3',
-      name: 'Emily Chen',
-      email: 'emily.chen@example.com',
-      role: 'Customer',
-      status: 'banned',
-      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&h=80&fit=crop',
-      joinedDate: 'Dec 12, 2023',
-    },
-    {
-      id: '4',
-      name: 'Michael Roberts',
-      email: 'michael.roberts@example.com',
-      role: 'Editor',
-      status: 'active',
-      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop',
-      joinedDate: 'Jan 28, 2024',
-    },
-    {
-      id: '5',
-      name: 'Sophia Williams',
-      email: 'sophia.williams@example.com',
-      role: 'Customer',
-      status: 'active',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&h=80&fit=crop',
-      joinedDate: 'Feb 10, 2024',
-    },
-    {
-      id: '6',
-      name: 'David Thompson',
-      email: 'david.thompson@example.com',
-      role: 'Customer',
-      status: 'active',
-      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop',
-      joinedDate: 'Feb 18, 2024',
-    },
-  ];
+  allUsers: User[] = [];
+  isLoading = true;
 
-  // ── State ────────────────────────────────────────
+  isModalOpen = false;
+  modalMode: 'add' | 'edit' = 'add';
+  selectedUser: any = null;
+
   searchTerm = '';
   openMenuId: string | null = null;
-
-  // ── Pagination ───────────────────────────────────
   currentPage = 1;
   itemsPerPage = 6;
 
-  // ── Lifecycle ────────────────────────────────────
-  ngOnInit(): void {}
+  constructor(
+    private userService: UserService,
+    private cdr: ChangeDetectorRef,
+  ) {}
+
+  ngOnInit(): void {
+    this.fetchUsers();
+  }
+
+  fetchUsers(): void {
+    this.isLoading = true;
+    this.userService.getAllUsers().subscribe({
+      next: (users) => {
+        this.allUsers = users;
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error fetching users:', err);
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+    });
+  }
 
   // ── Computed ─────────────────────────────────────
   get filteredUsers(): User[] {
@@ -96,7 +56,8 @@ export class UsersComponent implements OnInit {
     if (!q) return this.allUsers;
     return this.allUsers.filter(
       (u) =>
-        u.name.toLowerCase().includes(q) ||
+        u.firstName.toLowerCase().includes(q) ||
+        u.lastName.toLowerCase().includes(q) ||
         u.email.toLowerCase().includes(q) ||
         u.role.toLowerCase().includes(q),
     );
@@ -110,11 +71,9 @@ export class UsersComponent implements OnInit {
   get totalPages(): number {
     return Math.max(1, Math.ceil(this.filteredUsers.length / this.itemsPerPage));
   }
-
   get pageNumbers(): number[] {
     return Array.from({ length: this.totalPages }, (_, i) => i + 1);
   }
-
   get totalUsers(): number {
     return this.allUsers.length;
   }
@@ -124,7 +83,6 @@ export class UsersComponent implements OnInit {
   get bannedUsers(): number {
     return this.allUsers.filter((u) => u.status === 'banned').length;
   }
-
   get showingFrom(): number {
     return this.filteredUsers.length === 0 ? 0 : (this.currentPage - 1) * this.itemsPerPage + 1;
   }
@@ -134,27 +92,94 @@ export class UsersComponent implements OnInit {
 
   // ── Actions ──────────────────────────────────────
   toggleStatus(userId: string): void {
-    const user = this.allUsers.find((u) => u.id === userId);
+    const user = this.allUsers.find((u) => u._id === userId);
     if (user) {
-      user.status = user.status === 'active' ? 'banned' : 'active';
+      const newStatus = user.status === 'active' ? 'banned' : 'active';
+      user.status = newStatus; // optimistic update
+      this.userService.updateUserStatus(userId, newStatus).subscribe({
+        error: (err) => {
+          console.error('Failed to update status', err);
+          user.status = newStatus === 'active' ? 'banned' : 'active'; // revert
+        },
+      });
     }
   }
 
-  deleteUser(userId: string): void {
+  deleteUser(id: string): void {
     if (confirm('Are you sure you want to delete this user?')) {
-      this.allUsers = this.allUsers.filter((u) => u.id !== userId);
-      this.closeMenu();
-      if (this.currentPage > this.totalPages) this.currentPage = this.totalPages;
+      this.userService.deleteUser(id).subscribe({
+        next: () => {
+          this.allUsers = this.allUsers.filter((u) => u._id !== id);
+          this.cdr.detectChanges();
+        },
+        error: (err) => console.error('Delete failed:', err),
+      });
     }
   }
 
-  editUser(userId: string): void {
-    console.log('Edit user:', userId);
-    this.closeMenu();
-    // Navigate to edit page or open modal
+  // ── Modal ────────────────────────────────────────
+  openAddModal(): void {
+    this.modalMode = 'add';
+    this.selectedUser = null;
+    this.isModalOpen = true;
   }
 
-  // ── Menu ─────────────────────────────────────────
+  openEditModal(user: User): void {
+    this.modalMode = 'edit';
+    this.selectedUser = user;
+    this.isModalOpen = true;
+    this.closeMenu();
+  }
+
+  handleSave(formData: any): void {
+    if (this.modalMode === 'add') {
+      // ── Map form fields to match the backend model ──
+      const payload = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        password: formData.password,
+        role: formData.role || 'User',
+        DOB: formData.dob || undefined, // form uses 'dob', model uses 'DOB'
+      };
+
+      this.userService.createUser(payload).subscribe({
+        next: () => {
+          this.isModalOpen = false;
+          this.fetchUsers(); // refresh table
+        },
+        error: (err) => {
+          console.error('Error creating user:', err);
+          // Show the exact backend error message if available
+          alert(err.error?.message || 'Failed to create user. Check console for details.');
+        },
+      });
+    } else {
+      // ── Edit: only send fields that can be changed ──
+      const payload = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        role: formData.role,
+        DOB: formData.dob || undefined,
+        // password only if provided
+        ...(formData.password ? { password: formData.password } : {}),
+      };
+
+      this.userService.updateUser(this.selectedUser._id, payload).subscribe({
+        next: () => {
+          this.isModalOpen = false;
+          this.fetchUsers(); // refresh table
+        },
+        error: (err) => {
+          console.error('Error updating user:', err);
+          alert(err.error?.message || 'Failed to update user. Check console for details.');
+        },
+      });
+    }
+  }
+
+  // ── Menu & Helpers ───────────────────────────────
   toggleMenu(userId: string, event: Event): void {
     event.stopPropagation();
     this.openMenuId = this.openMenuId === userId ? null : userId;
@@ -169,18 +194,13 @@ export class UsersComponent implements OnInit {
     this.closeMenu();
   }
 
-  // ── Pagination ───────────────────────────────────
   goToPage(page: number): void {
     if (page >= 1 && page <= this.totalPages) this.currentPage = page;
   }
 
-  // ── Helpers ──────────────────────────────────────
-  getInitials(name: string): string {
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase();
+  getInitials(firstName: string, lastName: string): string {
+    if (!firstName || !lastName) return 'U';
+    return (firstName[0] + lastName[0]).toUpperCase();
   }
 
   onSearch(): void {
