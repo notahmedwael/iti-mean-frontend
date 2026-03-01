@@ -4,6 +4,8 @@ import { WishlistService } from '../../services/wishlist.service';
 import { CartService } from '../../services/cart.service';
 import { StarRatingComponent } from '../star-rating/star-rating.component';
 import { BookService, Book } from '../../services/book.service';
+import { Auth } from '../../core/services/auth';
+import { LoginPromptService } from '../../services/login-prompt.service';
 
 @Component({
   selector: 'app-product-list-item',
@@ -18,7 +20,9 @@ export class ProductListItemComponent {
 
   constructor(
     private wishlistService: WishlistService,
-    private cartService: CartService
+    private cartService: CartService,
+    private authService: Auth,
+    private loginPromptService: LoginPromptService
   ) {}
 
   isWishlisted(): boolean {
@@ -30,6 +34,10 @@ export class ProductListItemComponent {
   }
 
   addToCart(): void {
+    if (!this.authService.isLoggedIn()) {
+      this.loginPromptService.show('Please sign in to add books to your shopping cart.');
+      return;
+    }
     this.cartService.addItem(this.book, 1);
   }
 

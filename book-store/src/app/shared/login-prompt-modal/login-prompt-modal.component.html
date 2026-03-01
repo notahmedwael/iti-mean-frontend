@@ -1,0 +1,33 @@
+<div class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+  <!-- Backdrop -->
+  <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" (click)="onClose()"></div>
+
+  <!-- Modal content -->
+  <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden transform transition-all animate-in fade-in zoom-in duration-300">
+    <div class="p-8 text-center">
+      <div class="mx-auto w-16 h-16 bg-rust/10 rounded-full flex items-center justify-center mb-6">
+        <svg class="w-8 h-8 text-rust" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        </svg>
+      </div>
+
+      <h3 class="text-xl font-black text-maroon mb-2">Login Required</h3>
+      <p class="text-gray-600 mb-8 px-4 text-sm leading-relaxed">
+        {{ message }}
+      </p>
+
+      <div class="space-y-3">
+        <a routerLink="/login" (click)="onClose()" class="block w-full bg-rust text-white font-bold py-3 rounded-full hover:bg-opacity-90 transition shadow-md">
+          Sign In
+        </a>
+        <button (click)="onClose()" class="block w-full text-gray-500 font-bold py-2 hover:text-maroon transition text-sm">
+          Maybe Later
+        </button>
+      </div>
+
+      <p class="mt-6 text-xs text-gray-400">
+        New here? <a routerLink="/register" (click)="onClose()" class="text-rust font-semibold hover:underline">Create an account</a>
+      </p>
+    </div>
+  </div>
+</div>

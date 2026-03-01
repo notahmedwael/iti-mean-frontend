@@ -3,8 +3,9 @@ import { inject } from '@angular/core';
 import { Auth } from '../services/auth';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
-const BACKEND_URL = 'http://localhost:8000';
+const BACKEND_URL = environment.apiUrl;
 
 export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(Auth);

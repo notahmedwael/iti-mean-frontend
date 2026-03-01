@@ -12,16 +12,29 @@ import { DashboardComponent } from './admin/dashboard/dashboard';
 import { AdminBooksComponent } from './admin/books/books';
 import { UsersComponent } from './admin/users/users';
 import { AdminOrdersComponent } from './admin/orders/orders';
+import { SharedLayoutComponent } from './shared/shared-layout/shared-layout.component';
+import { Home } from './home/home';
+import { OrdersHistoryComponent } from './auth/orders-history/orders-history.component';
+import { OrderSummaryComponent } from './checkout/order-summary/order-summary.component';
 
 export const routes: Routes = [
   // ── Auth (no layout wrapper) ──────────────────
   { path: 'login', component: Login, canActivate: [guestGuard] },
   { path: 'register', component: Register, canActivate: [guestGuard] },
 
-  // ── User-facing ───────────────────────────────
-  { path: 'books', component: Books },
-  { path: 'books/:id', component: BookDetail },
-  { path: 'profile', component: Profile, canActivate: [authGuard] },
+  // ── Main pages with shared layout ─────────────
+  {
+    path: '',
+    component: SharedLayoutComponent,
+    children: [
+      { path: '', component: Home },
+      { path: 'books', component: Books },
+      { path: 'books/:id', component: BookDetail },
+      { path: 'profile', component: Profile, canActivate: [authGuard] },
+      { path: 'orders', component: OrdersHistoryComponent, canActivate: [authGuard] },
+      { path: 'checkout', component: OrderSummaryComponent, canActivate: [authGuard] },
+    ],
+  },
 
   // ── Admin (sidebar layout) ────────────────────
   {
@@ -38,5 +51,5 @@ export const routes: Routes = [
   },
 
   // ── Fallback ──────────────────────────────────
-  { path: '', redirectTo: '/books', pathMatch: 'full' },
+  { path: '**', redirectTo: '' },
 ];

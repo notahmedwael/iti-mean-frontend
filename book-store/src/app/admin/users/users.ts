@@ -1,14 +1,13 @@
 import { Component, OnInit, HostListener, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { PaginationComponent } from '../shared/pagination/pagination';
 import { UserService, User } from '../services/user.service';
 import { UserModal } from '../components/user-modal/user-modal';
 
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [CommonModule, FormsModule, PaginationComponent, UserModal],
+  imports: [CommonModule, FormsModule, UserModal],
   templateUrl: './users.html',
   styleUrls: ['./users.css'],
 })
@@ -140,7 +139,7 @@ export class UsersComponent implements OnInit {
         email: formData.email,
         password: formData.password,
         role: formData.role || 'User',
-        DOB: formData.dob || undefined, // form uses 'dob', model uses 'DOB'
+        dob: formData.dob || undefined, // form uses 'dob', model uses 'DOB'
       };
 
       this.userService.createUser(payload).subscribe({
@@ -161,7 +160,7 @@ export class UsersComponent implements OnInit {
         lastName: formData.lastName,
         email: formData.email,
         role: formData.role,
-        DOB: formData.dob || undefined,
+        dob: formData.dob || undefined,
         // password only if provided
         ...(formData.password ? { password: formData.password } : {}),
       };

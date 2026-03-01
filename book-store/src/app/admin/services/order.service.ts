@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
 
 // ── Interfaces matching the backend model exactly ──────────────────────────
 
@@ -55,7 +56,7 @@ export interface OrdersResponse {
 
 @Injectable({ providedIn: 'root' })
 export class OrderService {
-  private apiUrl = 'http://localhost:8000/order';
+  private apiUrl = `${environment.apiUrl}/order`;
 
   constructor(private http: HttpClient) {}
 

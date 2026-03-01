@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { WishlistService } from '../../services/wishlist.service';
 import { CartService } from '../../services/cart.service';
 import { BookService, Book } from '../../services/book.service';
+import { Auth } from '../../core/services/auth';
+import { LoginPromptService } from '../../services/login-prompt.service';
 import { forkJoin } from 'rxjs';
 
 @Component({
@@ -16,10 +18,13 @@ export class WishlistModalComponent implements OnInit {
   public wishlistService = inject(WishlistService);
   public cartService = inject(CartService);
   private bookService = inject(BookService);
+  private authService = inject(Auth);
+  private loginPromptService = inject(LoginPromptService);
   @Output() close = new EventEmitter<void>();
 
   wishlistBooks = signal<Book[]>([]);
   loading = signal(true);
+  addedToCartId = signal<string | null>(null);
 
   ngOnInit() {
     this.loadWishlistBooks();
@@ -64,6 +69,13 @@ export class WishlistModalComponent implements OnInit {
   }
 
   addToCart(book: Book) {
+    if (!this.authService.isLoggedIn()) {
+      this.loginPromptService.show('Please sign in to add books to your shopping cart.');
+      this.closeModal();
+      return;
+    }
     this.cartService.addItem(book, 1);
+    this.addedToCartId.set(book._id);
+    setTimeout(() => this.addedToCartId.set(null), 2000);
   }
 }

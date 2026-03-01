@@ -5,6 +5,8 @@ import { CartService } from '../../services/cart.service';
 import { WishlistService } from '../../services/wishlist.service';
 import { StarRatingComponent } from '../star-rating/star-rating.component';
 import { BookService, Book } from '../../services/book.service';
+import { Auth } from '../../core/services/auth';
+import { LoginPromptService } from '../../services/login-prompt.service';
 import { fadeInModal, fadeInBackdrop } from '../../animations';
 
 @Component({
@@ -23,7 +25,9 @@ export class QuickViewModalComponent {
 
   constructor(
     private cartService: CartService,
-    private wishlistService: WishlistService
+    private wishlistService: WishlistService,
+    private authService: Auth,
+    private loginPromptService: LoginPromptService
   ) {}
 
   @HostListener('document:keydown.escape')
@@ -50,6 +54,11 @@ export class QuickViewModalComponent {
   }
 
   addToCart(): void {
+    if (!this.authService.isLoggedIn()) {
+      this.loginPromptService.show('Please sign in to add books to your shopping cart.');
+      this.onClose();
+      return;
+    }
     this.cartService.addItem(this.book, this.quantity);
     this.onClose();
   }

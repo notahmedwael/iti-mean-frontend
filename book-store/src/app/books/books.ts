@@ -1,15 +1,18 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { DecimalPipe, TitleCasePipe } from '@angular/common';
 import { BookService, Book, Category, Author } from '../services/book.service';
+import { CartService } from '../services/cart.service';
+import { WishlistService } from '../services/wishlist.service';
+import { Auth } from '../core/services/auth';
+import { LoginPromptService } from '../services/login-prompt.service';
 
 const CATEGORY_TABS = ['All Books', 'Classic Fiction', 'Mystery', 'Science Fiction', 'Romance', 'Philosophy', 'Biography', 'Poetry', 'Self-Help', 'History'];
 
 @Component({
   selector: 'app-books',
   standalone: true,
-  imports: [RouterLink, FormsModule, DecimalPipe, TitleCasePipe],
+  imports: [RouterLink, FormsModule],
   templateUrl: './books.html',
   styleUrl: './books.css',
 })
@@ -54,7 +57,13 @@ export class Books implements OnInit {
   limit = 12;
   totalResults = 0;
 
-  constructor(private bookService: BookService) { }
+  constructor(
+    private bookService: BookService,
+    private cartService: CartService,
+    private wishlistService: WishlistService,
+    private authService: Auth,
+    private loginPromptService: LoginPromptService,
+  ) { }
 
   ngOnInit(): void {
     this.fetchBooks();
@@ -148,10 +157,36 @@ export class Books implements OnInit {
   }
 
   get totalPages(): number { return Math.ceil(this.totalResults / this.limit); }
+  get hasNextPage(): boolean { return this.currentPage < this.totalPages; }
   get activeFilterCount(): number {
     return (this.selectedCategory ? 1 : 0) + (this.selectedAuthor ? 1 : 0);
   }
   get hasActiveFilters(): boolean { return this.activeFilterCount > 0 || !!this.search; }
+
+  // ── Search / filter shortcuts for template ──────────
+  onSearch(): void { this.currentPage = 1; this.fetchBooks(); }
+  onFilterChange(): void { this.currentPage = 1; this.fetchBooks(); }
+
+  // ── Cart / Wishlist ─────────────────────────────────
+  addedToCart = signal<string | null>(null);
+
+  addToCart(book: Book): void {
+    if (!this.authService.isLoggedIn()) {
+      this.loginPromptService.show('Please sign in to add books to your shopping cart.');
+      return;
+    }
+    this.cartService.addItem(book);
+    this.addedToCart.set(book._id);
+    setTimeout(() => this.addedToCart.set(null), 2000);
+  }
+
+  toggleWishlist(book: Book): void {
+    this.wishlistService.toggle(book._id);
+  }
+
+  isWishlisted(bookId: string): boolean {
+    return this.wishlistService.isWishlisted(bookId);
+  }
 
   // Price helpers
   getOriginalPrice(price: number): string { return (price * 1.3).toFixed(2); }

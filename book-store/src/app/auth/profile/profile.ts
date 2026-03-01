@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-profile',
@@ -31,7 +32,7 @@ export class Profile implements OnInit {
   }
 
   loadProfile() {
-    this.http.get<any>('http://localhost:8000/users/profile').subscribe({
+    this.http.get<any>(`${environment.apiUrl}/users/profile`).subscribe({
       next: (response) => {
         if (response && response.data) {
           const user = response.data;
@@ -68,7 +69,7 @@ export class Profile implements OnInit {
     if (this.profileForm.valid) {
       this.isLoading = true;
       this.http
-        .patch('http://localhost:8000/users/profile', this.profileForm.getRawValue())
+        .patch(`${environment.apiUrl}/users/profile`, this.profileForm.getRawValue())
         .subscribe({
           next: (res: any) => {
             this.isLoading = false;

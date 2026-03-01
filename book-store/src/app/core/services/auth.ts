@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { tap, BehaviorSubject } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 interface JwtPayload {
   userId: string;
@@ -12,7 +13,7 @@ interface JwtPayload {
 })
 export class Auth {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8000';
+  private apiUrl = environment.apiUrl;
   private loggedIn = new BehaviorSubject<boolean>(!!localStorage.getItem('token'));
 
   isLoggedIn$ = this.loggedIn.asObservable();
@@ -65,16 +66,5 @@ export class Auth {
 
   isAdmin(): boolean {
     return this.getRole() === 'Admin';
-  }
-
-  getUserId(): string | null {
-    const token = localStorage.getItem('token');
-    if (!token) return null;
-    try {
-      const decoded: any = jwtDecode(token);
-      return decoded.id || decoded.userId || decoded.sub;
-    } catch {
-      return null;
-    }
   }
 }

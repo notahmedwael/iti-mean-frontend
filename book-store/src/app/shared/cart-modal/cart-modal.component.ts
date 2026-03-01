@@ -1,6 +1,6 @@
 import { Component, inject, Output, EventEmitter, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { CartService, CartItem } from '../../services/cart.service';
 
 @Component({
@@ -12,6 +12,7 @@ import { CartService, CartItem } from '../../services/cart.service';
 })
 export class CartModalComponent implements OnInit {
   public cartService = inject(CartService);
+  private router = inject(Router);
   @Output() close = new EventEmitter<void>();
 
   items = signal<CartItem[]>([]);
@@ -38,5 +39,6 @@ export class CartModalComponent implements OnInit {
 
   checkout() {
     this.closeModal();
+    this.router.navigate(['/checkout']);
   }
 }
