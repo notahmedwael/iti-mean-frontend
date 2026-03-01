@@ -42,7 +42,7 @@ export class Home implements OnInit {
   }
 
   addToCart(book: Book): void {
-    this.cartService.addItem(book);
+    this.cartService.addItem(book, 1);
     this.addedToCart.set(book._id);
     setTimeout(() => {
       this.addedToCart.set(null);

@@ -84,8 +84,11 @@ export class BookService {
     return this.http.get<BookResponse>(`${this.baseUrl}/book/${id}`);
   }
 
-  getLatestBooks(): Observable<BooksResponse> {
-    return this.http.get<BooksResponse>(`${this.baseUrl}/book/latest`);
+  getLatestBooks(limit = 10): Observable<BooksResponse> {
+    const params = new HttpParams()
+      .set('limit', limit.toString())
+      .set('sort', '-createdAt');
+    return this.http.get<BooksResponse>(`${this.baseUrl}/book`, { params });
   }
 
   getAllCategories(): Observable<CategoriesResponse> {

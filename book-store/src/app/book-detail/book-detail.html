@@ -154,7 +154,7 @@
   <p class="text-text-muted text-center py-12">No reviews yet. Be the first to review this book!</p>
   }
 
-  <!-- Add Review Form — only for verified purchasers -->
+  <!-- Add Review Form — only verified purchasers with Delivered order -->
   @if (canReview()) {
   <div class="bg-cream border border-gold/30 rounded-xl p-8">
     <h3 class="text-xl font-bold text-maroon mb-6">Share Your Review</h3>
@@ -214,7 +214,7 @@
     </form>
   </div>
   } @else {
-  <!-- Locked state: explain why the review form is hidden -->
+  <!-- Locked: explain why the review form is hidden -->
   <div class="bg-amber-50 border border-amber-200 rounded-xl p-6 flex items-start gap-4">
     <div class="mt-0.5 text-amber-500 shrink-0">
       <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -225,12 +225,11 @@
     <div>
       <p class="font-semibold text-amber-800 text-sm">Reviews are for verified purchasers only</p>
       <p class="text-amber-700 text-sm mt-1">
-        {{ reviewBlockReason() || 'Only customers who have purchased and received this book can leave a review.' }}
+        {{ reviewBlockReason() || 'Only customers with a delivered order for this book can leave a review.' }}
       </p>
     </div>
   </div>
   }
-
 
 
   <!-- Delete Confirmation Modal -->

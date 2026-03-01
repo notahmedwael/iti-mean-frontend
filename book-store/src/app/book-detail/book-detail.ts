@@ -33,6 +33,7 @@ export class BookDetail implements OnInit, OnDestroy {
   private authService = inject(Auth);
   private http = inject(HttpClient);
   private destroy$ = new Subject<void>();
+  private readonly baseUrl = 'http://localhost:8000';
 
   book = signal<Book | null>(null);
   reviews = signal<Review[]>([]);
@@ -48,7 +49,6 @@ export class BookDetail implements OnInit, OnDestroy {
   deletingReview = signal(false);
   canReview = signal(false);
   reviewBlockReason = signal<string | null>(null);
-  private readonly baseUrl = 'http://localhost:8000';
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -62,12 +62,14 @@ export class BookDetail implements OnInit, OnDestroy {
     this.loadBook(id);
     this.loadReviews(id);
     this.initializeReviewForm();
-    // Check purchase eligibility only for logged-in (non-admin) users
+
+    // Check purchase eligibility only for logged-in users
     if (userId) {
       this.checkCanReview(id);
     } else {
       this.reviewBlockReason.set('Log in to leave a review.');
     }
+
     // Subscribe to wishlist changes
     this.wishlistService.ids$
       .pipe(takeUntil(this.destroy$))
@@ -141,7 +143,6 @@ export class BookDetail implements OnInit, OnDestroy {
           }
         },
         error: () => {
-          // If the endpoint fails assume not eligible (safe default)
           this.canReview.set(false);
           this.reviewBlockReason.set(
             'Could not verify purchase history. Please try again later.',
@@ -152,7 +153,7 @@ export class BookDetail implements OnInit, OnDestroy {
 
   addToCart(): void {
     if (this.book()) {
-      this.cartService.addItem(this.book()!);
+      this.cartService.addItem(this.book()!, 1);
       this.addedToCart.set(true);
       setTimeout(() => {
         this.addedToCart.set(false);
@@ -163,7 +164,6 @@ export class BookDetail implements OnInit, OnDestroy {
   toggleWishlist(): void {
     if (this.book()) {
       this.wishlistService.toggle(this.book()!._id);
-      // Signal will be updated automatically via subscription
     }
   }
 
@@ -189,6 +189,8 @@ export class BookDetail implements OnInit, OnDestroy {
         this.reviewForm.reset({ rating: 5, comment: '' });
         this.submittingReview.set(false);
         this.reviewSubmitted.set(true);
+        this.canReview.set(false);
+        this.reviewBlockReason.set('You have already reviewed this book.');
         setTimeout(() => {
           this.reviewSubmitted.set(false);
         }, 3000);

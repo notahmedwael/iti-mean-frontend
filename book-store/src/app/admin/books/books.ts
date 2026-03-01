@@ -45,6 +45,9 @@ export class AdminBooksComponent implements OnInit {
   limit = 10;
   totalResults = 0;
 
+  // ── Dropdown menu
+  openMenuId: string | null = null;
+
   // ── Book modal state
   showModal = false;
   isEditing = false;
@@ -58,7 +61,7 @@ export class AdminBooksComponent implements OnInit {
   miniEditing = false;
   miniEditingId = '';
   miniName = '';
-  miniBio = '';              // author only
+  miniBio = '';
   miniSubmitting = signal(false);
   miniError = signal<string | null>(null);
   miniAuthorList = signal<Author[]>([]);
@@ -81,7 +84,7 @@ export class AdminBooksComponent implements OnInit {
     });
   }
 
-  // ── Books fetch ───────────────────────────────
+  // ── Books fetch ───────────────────────────────────────────────────────────
   fetchBooks(): void {
     this.loading.set(true);
     this.error.set(null);
@@ -119,6 +122,16 @@ export class AdminBooksComponent implements OnInit {
   get hasActiveFilters(): boolean {
     return !!(this.search || this.selectedCategory || this.selectedAuthor || this.minPrice || this.maxPrice);
   }
+
+  // ── Dropdown menu ─────────────────────────────
+  toggleMenu(id: string, e: Event): void {
+    e.stopPropagation();
+    this.openMenuId = this.openMenuId === id ? null : id;
+  }
+  closeMenu(): void { this.openMenuId = null; }
+
+  @HostListener('document:click')
+  onDocClick(): void { this.closeMenu(); }
 
   // ── Book Modal ────────────────────────────────
   openCreate(): void {
@@ -173,11 +186,12 @@ export class AdminBooksComponent implements OnInit {
     }
   }
 
-  // ── Admin actions (called from template) ──────
+  // ── Admin actions ─────────────────────────────
   addBook(): void { this.openCreate(); }
   editBook(id: string): void {
     const book = this.books().find(b => b._id === id);
     if (book) this.openEdit(book);
+    this.closeMenu();
   }
   deleteBook(id: string): void {
     const book = this.books().find(b => b._id === id);
@@ -186,6 +200,7 @@ export class AdminBooksComponent implements OnInit {
       next: () => this.fetchBooks(),
       error: (err) => alert(err?.error?.message ?? 'Failed to delete book.'),
     });
+    this.closeMenu();
   }
 
   // ── Mini Modal (Author / Category) ───────────
