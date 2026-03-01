@@ -1,7 +1,11 @@
 <div class="p-8 max-w-7xl mx-auto">
   <!-- Breadcrumb -->
   <nav class="flex items-center gap-2 text-sm mb-6">
-    <a href="/" class="text-gray-500 hover:text-[#602314] transition-colors">Admin</a>
+    <a
+      [routerLink]="['/admin/dashboard']"
+      class="text-gray-500 hover:text-[#602314] transition-colors"
+      >Admin</a
+    >
     <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
     </svg>
@@ -16,81 +20,118 @@
 
   <!-- ── Stat Cards ── -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- Total Revenue -->
     <div
-      *ngFor="let stat of stats"
       class="bg-white rounded-lg shadow-sm border border-gray-100 p-6 flex items-center justify-between"
     >
       <div>
-        <p class="text-sm text-gray-500 mb-1">{{ stat.title }}</p>
-        <p class="text-3xl font-bold text-[#602314]">{{ formatValue(stat) }}</p>
-        <p
-          class="text-xs mt-1.5 font-medium"
-          [ngClass]="stat.up ? 'text-emerald-600' : 'text-red-500'"
-        >
-          {{ stat.change }} vs last month
+        <p class="text-sm text-gray-500 mb-1">Total Revenue</p>
+        <p class="text-3xl font-bold text-[#602314]">
+          @if (loadingOrders) {
+            <span class="inline-block w-20 h-8 bg-gray-200 rounded animate-pulse"></span>
+          } @else {
+            ${{ totalRevenue.toLocaleString() }}
+          }
         </p>
       </div>
-
-      <!-- Icon -->
       <div class="bg-[#DD9047]/10 p-3 rounded-lg text-[#DD9047]">
-        <!-- Revenue -->
-        <ng-container *ngIf="stat.icon === 'revenue'">
-          <svg
-            class="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.75"
-            viewBox="0 0 24 24"
-          >
-            <line x1="12" y1="1" x2="12" y2="23" />
-            <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
-          </svg>
-        </ng-container>
+        <svg
+          class="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.75"
+          viewBox="0 0 24 24"
+        >
+          <line x1="12" y1="1" x2="12" y2="23" />
+          <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
+        </svg>
+      </div>
+    </div>
 
-        <!-- Orders -->
-        <ng-container *ngIf="stat.icon === 'orders'">
-          <svg
-            class="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.75"
-            viewBox="0 0 24 24"
-          >
-            <circle cx="9" cy="21" r="1" />
-            <circle cx="20" cy="21" r="1" />
-            <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 001.97-1.67L23 6H6" />
-          </svg>
-        </ng-container>
+    <!-- Total Orders -->
+    <div
+      class="bg-white rounded-lg shadow-sm border border-gray-100 p-6 flex items-center justify-between"
+    >
+      <div>
+        <p class="text-sm text-gray-500 mb-1">Total Orders</p>
+        <p class="text-3xl font-bold text-[#602314]">
+          @if (loadingOrders) {
+            <span class="inline-block w-16 h-8 bg-gray-200 rounded animate-pulse"></span>
+          } @else {
+            {{ totalOrders.toLocaleString() }}
+          }
+        </p>
+      </div>
+      <div class="bg-[#DD9047]/10 p-3 rounded-lg text-[#DD9047]">
+        <svg
+          class="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.75"
+          viewBox="0 0 24 24"
+        >
+          <circle cx="9" cy="21" r="1" />
+          <circle cx="20" cy="21" r="1" />
+          <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 001.97-1.67L23 6H6" />
+        </svg>
+      </div>
+    </div>
 
-        <!-- Books -->
-        <ng-container *ngIf="stat.icon === 'books'">
-          <svg
-            class="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.75"
-            viewBox="0 0 24 24"
-          >
-            <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z" />
-            <path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z" />
-          </svg>
-        </ng-container>
+    <!-- Books in Stock -->
+    <div
+      class="bg-white rounded-lg shadow-sm border border-gray-100 p-6 flex items-center justify-between"
+    >
+      <div>
+        <p class="text-sm text-gray-500 mb-1">Books in Stock</p>
+        <p class="text-3xl font-bold text-[#602314]">
+          @if (loadingStats) {
+            <span class="inline-block w-16 h-8 bg-gray-200 rounded animate-pulse"></span>
+          } @else {
+            {{ totalBooks.toLocaleString() }}
+          }
+        </p>
+      </div>
+      <div class="bg-[#DD9047]/10 p-3 rounded-lg text-[#DD9047]">
+        <svg
+          class="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.75"
+          viewBox="0 0 24 24"
+        >
+          <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z" />
+          <path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z" />
+        </svg>
+      </div>
+    </div>
 
-        <!-- Users -->
-        <ng-container *ngIf="stat.icon === 'users'">
-          <svg
-            class="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.75"
-            viewBox="0 0 24 24"
-          >
-            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
-            <circle cx="9" cy="7" r="4" />
-            <path d="M23 21v-2a4 4 0 00-3-3.87" />
-            <path d="M16 3.13a4 4 0 010 7.75" />
-          </svg>
-        </ng-container>
+    <!-- Total Users -->
+    <div
+      class="bg-white rounded-lg shadow-sm border border-gray-100 p-6 flex items-center justify-between"
+    >
+      <div>
+        <p class="text-sm text-gray-500 mb-1">Total Users</p>
+        <p class="text-3xl font-bold text-[#602314]">
+          @if (loadingStats) {
+            <span class="inline-block w-12 h-8 bg-gray-200 rounded animate-pulse"></span>
+          } @else {
+            {{ totalUsers.toLocaleString() }}
+          }
+        </p>
+      </div>
+      <div class="bg-[#DD9047]/10 p-3 rounded-lg text-[#DD9047]">
+        <svg
+          class="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.75"
+          viewBox="0 0 24 24"
+        >
+          <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+          <circle cx="9" cy="7" r="4" />
+          <path d="M23 21v-2a4 4 0 00-3-3.87" />
+          <path d="M16 3.13a4 4 0 010 7.75" />
+        </svg>
       </div>
     </div>
   </div>
@@ -99,40 +140,69 @@
   <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
     <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
       <h2 class="text-lg font-semibold text-[#602314]">Recent Orders</h2>
-      <a href="#" class="text-sm text-[#BC552A] hover:underline font-medium">View all</a>
+      <a
+        [routerLink]="['/admin/orders']"
+        class="text-sm text-[#BC552A] hover:underline font-medium"
+      >
+        View all →
+      </a>
     </div>
 
-    <table class="w-full">
-      <thead>
-        <tr class="bg-gray-50 border-b border-gray-200">
-          <th class="text-left px-6 py-4 text-sm font-semibold text-gray-700">Order ID</th>
-          <th class="text-left px-6 py-4 text-sm font-semibold text-gray-700">Customer</th>
-          <th class="text-left px-6 py-4 text-sm font-semibold text-gray-700">Book</th>
-          <th class="text-left px-6 py-4 text-sm font-semibold text-gray-700">Amount</th>
-          <th class="text-left px-6 py-4 text-sm font-semibold text-gray-700">Status</th>
-          <th class="text-left px-6 py-4 text-sm font-semibold text-gray-700">Date</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          *ngFor="let order of recentOrders"
-          class="border-b border-gray-100 hover:bg-gray-50 transition-colors duration-150"
-        >
-          <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ order.id }}</td>
-          <td class="px-6 py-4 text-sm text-gray-600">{{ order.customer }}</td>
-          <td class="px-6 py-4 text-sm text-gray-600">{{ order.book }}</td>
-          <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ order.amount }}</td>
-          <td class="px-6 py-4">
-            <span
-              class="inline-flex px-3 py-1 rounded-full text-xs font-medium capitalize"
-              [ngClass]="statusClass(order.status)"
-            >
-              {{ order.status }}
-            </span>
-          </td>
-          <td class="px-6 py-4 text-sm text-gray-500">{{ order.date }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <!-- Loading skeleton -->
+    @if (loadingOrders) {
+      <div class="p-6 space-y-3">
+        <div *ngFor="let i of [1, 2, 3, 4, 5]" class="h-10 bg-gray-100 rounded animate-pulse"></div>
+      </div>
+    }
+
+    <!-- Table -->
+    @if (!loadingOrders) {
+      <table class="w-full">
+        <thead>
+          <tr class="bg-gray-50 border-b border-gray-200">
+            <th class="text-left px-6 py-4 text-sm font-semibold text-gray-700">Order ID</th>
+            <th class="text-left px-6 py-4 text-sm font-semibold text-gray-700">Customer</th>
+            <th class="text-left px-6 py-4 text-sm font-semibold text-gray-700">Book</th>
+            <th class="text-left px-6 py-4 text-sm font-semibold text-gray-700">Amount</th>
+            <th class="text-left px-6 py-4 text-sm font-semibold text-gray-700">Status</th>
+            <th class="text-left px-6 py-4 text-sm font-semibold text-gray-700">Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="recentOrders.length === 0">
+            <td colspan="6" class="px-6 py-12 text-center text-gray-400 text-sm">No orders yet</td>
+          </tr>
+
+          <tr
+            *ngFor="let order of recentOrders"
+            class="border-b border-gray-100 hover:bg-gray-50 transition-colors duration-150 cursor-pointer"
+            [routerLink]="['/admin/orders']"
+          >
+            <td class="px-6 py-4 text-sm font-mono font-medium text-[#602314]">
+              #{{ order._id.slice(-8).toUpperCase() }}
+            </td>
+
+            <td class="px-6 py-4 text-sm text-gray-600">{{ customerName(order) }}</td>
+
+            <td class="px-6 py-4 text-sm text-gray-600">{{ firstBook(order) }}</td>
+
+            <td class="px-6 py-4 text-sm font-medium text-gray-900">
+              ${{ order.totalAmount.toFixed(2) }}
+            </td>
+
+            <td class="px-6 py-4">
+              <span
+                class="inline-flex px-3 py-1 rounded-full text-xs font-medium capitalize"
+                [ngClass]="orderStatusClass(order.orderStatus)"
+              >
+                {{ order.orderStatus }}
+              </span>
+            </td>
+
+            <td class="px-6 py-4 text-sm text-gray-500">{{ formatDate(order.createdAt) }}</td>
+          </tr>
+        </tbody>
+      </table>
+    }
   </div>
 </div>
