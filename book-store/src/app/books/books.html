@@ -75,7 +75,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
               @for (book of books(); track book._id) {
                 <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden transition transform hover:-translate-y-1 group">
-                  <a [routerLink]="['/book', book._id]" class="relative aspect-[3/4] block overflow-hidden">
+                  <a [routerLink]="['/books', book._id]" class="relative aspect-[3/4] block overflow-hidden">
                     <img [src]="book.cover" class="w-full h-full object-cover group-hover:scale-110 transition duration-300" />
                     <button (click)="toggleWishlist(book); $event.preventDefault(); $event.stopPropagation()" 
                             class="absolute top-3 right-3 p-2 rounded-full bg-white/90 shadow-md transition z-10"

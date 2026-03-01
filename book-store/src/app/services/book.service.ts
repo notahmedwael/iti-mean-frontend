@@ -25,37 +25,14 @@ export interface Book {
   createdAt?: string;
 }
 
-export interface BooksResponse {
-  status: string;
-  len: number;
-  data: Book[];
-}
-
-export interface BookResponse {
-  status: string;
-  data: Book;
-}
-
-export interface CategoriesResponse {
-  status: string;
-  len: number;
-  data: Category[];
-}
-
-export interface AuthorsResponse {
-  status: string;
-  len: number;
-  data: Author[];
-}
+export interface BooksResponse   { status: string; len: number; data: Book[]; }
+export interface BookResponse    { status: string; data: Book; }
+export interface CategoriesResponse { status: string; len: number; data: Category[]; }
+export interface AuthorsResponse    { status: string; len: number; data: Author[]; }
 
 export interface BookFilters {
-  page?: number;
-  limit?: number;
-  search?: string;
-  category?: string;
-  author?: string;
-  minPrice?: number;
-  maxPrice?: number;
+  page?: number; limit?: number; search?: string;
+  category?: string; author?: string; minPrice?: number; maxPrice?: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -64,6 +41,7 @@ export class BookService {
 
   constructor(private http: HttpClient) {}
 
+  // ── Books ──────────────────────────────────────────
   getAllBooks(filters: BookFilters = {}): Observable<BooksResponse> {
     let params = new HttpParams();
     if (filters.page)     params = params.set('page',     filters.page.toString());
@@ -80,15 +58,58 @@ export class BookService {
     return this.http.get<BookResponse>(`${this.baseUrl}/book/${id}`);
   }
 
+  createBook(body: Partial<Book> & { author: string; category: string }): Observable<BookResponse> {
+    return this.http.post<BookResponse>(`${this.baseUrl}/book`, body);
+  }
+
+  updateBook(id: string, body: any): Observable<BookResponse> {
+    return this.http.patch<BookResponse>(`${this.baseUrl}/book/${id}`, body);
+  }
+
+  deleteBook(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/book/${id}`);
+  }
+
   getLatestBooks(): Observable<BooksResponse> {
     return this.http.get<BooksResponse>(`${this.baseUrl}/book/latest`);
   }
 
+  // ── Categories ─────────────────────────────────────
   getAllCategories(): Observable<CategoriesResponse> {
     return this.http.get<CategoriesResponse>(`${this.baseUrl}/category`);
   }
 
+  createCategory(body: { name: string }): Observable<any> {
+    return this.http.post(`${this.baseUrl}/category`, body);
+  }
+
+  updateCategory(id: string, body: { name: string }): Observable<any> {
+    return this.http.patch(`${this.baseUrl}/category/${id}`, body);
+  }
+
+  deleteCategory(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/category/${id}`);
+  }
+
+  // ── Authors ────────────────────────────────────────
   getAllAuthors(): Observable<AuthorsResponse> {
     return this.http.get<AuthorsResponse>(`${this.baseUrl}/author`);
+  }
+
+  createAuthor(body: { name: string; bio?: string }): Observable<any> {
+    return this.http.post(`${this.baseUrl}/author`, body);
+  }
+
+  updateAuthor(id: string, body: { name: string; bio?: string }): Observable<any> {
+    return this.http.patch(`${this.baseUrl}/author/${id}`, body);
+  }
+
+  deleteAuthor(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/author/${id}`);
+  }
+
+  // ── Cloudinary signature ───────────────────────────
+  getUploadSignature(): Observable<{ signature: string; timestamp: number; cloudName: string; apiKey: string; folder: string }> {
+    return this.http.get<any>(`${this.baseUrl}/upload/signature`);
   }
 }

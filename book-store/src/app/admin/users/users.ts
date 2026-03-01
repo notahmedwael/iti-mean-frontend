@@ -3,14 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { User } from '../services/user.service';
 
-import { PaginationComponent } from '../shared/pagination/pagination';
 import { UserService, User as UserModel } from '../services/user.service';
 import { UserModal } from '../components/user-modal/user-modal';
 
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [CommonModule, FormsModule, PaginationComponent, UserModal],
+  imports: [CommonModule, FormsModule, UserModal],
   templateUrl: './users.html',
   styleUrls: ['./users.css'],
 })
