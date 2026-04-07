@@ -86,7 +86,7 @@ export class Books implements OnInit {
     }).subscribe({
       next: (res) => {
         this.books.set(res.data);
-        this.totalResults = res.len;
+        this.totalResults = res.len ?? (res as any).total ?? (res as any).results ?? (res.data ? res.data.length : 0);
         this.loading.set(false);
       },
       error: () => {
@@ -156,7 +156,7 @@ export class Books implements OnInit {
     if (this.currentPage > 1) { this.currentPage--; this.fetchBooks(); }
   }
 
-  get totalPages(): number { return Math.ceil(this.totalResults / this.limit); }
+  get totalPages(): number { return Math.ceil(this.totalResults / this.limit) || 1; }
   get hasNextPage(): boolean { return this.currentPage < this.totalPages; }
   get activeFilterCount(): number {
     return (this.selectedCategory ? 1 : 0) + (this.selectedAuthor ? 1 : 0);

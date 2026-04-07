@@ -90,6 +90,7 @@ export class AdminBooksComponent implements OnInit {
   fetchBooks(): void {
     this.loading.set(true);
     this.error.set(null);
+<<<<<<< HEAD
     this.bookService
       .getAllBooks({
         page: this.currentPage,
@@ -111,6 +112,19 @@ export class AdminBooksComponent implements OnInit {
           this.loading.set(false);
         },
       });
+=======
+    this.bookService.getAllBooks({
+      page: this.currentPage, limit: this.limit,
+      search: this.search || undefined,
+      category: this.selectedCategory || undefined,
+      author: this.selectedAuthor || undefined,
+      minPrice: this.minPrice ?? undefined,
+      maxPrice: this.maxPrice ?? undefined,
+    }).subscribe({
+      next: (res) => { this.books.set(res.data); this.totalResults = res.len ?? (res as any).total ?? (res as any).results ?? (res.data ? res.data.length : 0); this.loading.set(false); },
+      error: () => { this.error.set('Failed to load books.'); this.loading.set(false); },
+    });
+>>>>>>> 50201485910a27417a9f8f2ac7d921a5f7176b67
   }
 
   loadAuthorsAndCategories(): void {
