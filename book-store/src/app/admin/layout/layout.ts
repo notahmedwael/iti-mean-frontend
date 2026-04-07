@@ -17,9 +17,9 @@ interface NavItem {
 })
 export class LayoutComponent {
   navItems: NavItem[] = [
-    { label: 'Dashboard', route: '/dashboard', icon: 'dashboard' },
-    { label: 'Books', route: '/books', icon: 'book' },
-    { label: 'Orders', route: '/orders', icon: 'orders' },
-    { label: 'Users', route: '/users', icon: 'users' },
+    { label: 'Dashboard', route: '/admin/dashboard', icon: 'dashboard' },
+    { label: 'Books', route: '/admin/books', icon: 'book' },
+    { label: 'Orders', route: '/admin/orders', icon: 'orders' },
+    { label: 'Users', route: '/admin/users', icon: 'users' },
   ];
 }
