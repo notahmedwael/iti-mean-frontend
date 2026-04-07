@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Book } from './book.service';
 import { environment } from '../../environments/environment';
@@ -28,7 +28,7 @@ export interface Order {
 
 export interface OrdersResponse {
   status: string;
-  data: { message: string; orders: Order[]; total: number; };
+  data: { message: string; orders?: Order[]; data?: Order[]; total?: number; pagination?: any };
 }
 
 export interface OrderResponse {
@@ -56,6 +56,22 @@ export class OrderService {
 
   updateOrderStatus(id: string, status: string): Observable<OrderResponse> {
     return this.http.patch<OrderResponse>(`${this.baseUrl}/order/${id}`, { status });
+  }
+
+  getAllOrders(filters: { page?: number; limit?: number; status?: string; paymentStatus?: string } = {}): Observable<OrdersResponse> {
+    let params = new HttpParams();
+    if (filters.page) params = params.set('page', filters.page.toString());
+    if (filters.limit) params = params.set('limit', filters.limit.toString());
+    if (filters.status) params = params.set('status', filters.status);
+    if (filters.paymentStatus) params = params.set('paymentStatus', filters.paymentStatus);
+    return this.http.get<OrdersResponse>(`${this.baseUrl}/order/admin/all`, { params });
+  }
+
+  updateOrderStatusAdmin(id: string, orderStatus?: string, paymentStatus?: string): Observable<OrderResponse> {
+    const body: any = {};
+    if (orderStatus) body.orderStatus = orderStatus;
+    if (paymentStatus) body.paymentStatus = paymentStatus;
+    return this.http.patch<OrderResponse>(`${this.baseUrl}/order/admin/update/${id}`, body);
   }
 
   // Check if logged-in user has a Delivered order containing this book

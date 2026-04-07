@@ -17,14 +17,7 @@ interface BookForm {
 
 type MiniModalType = 'author' | 'category' | null;
 
-type ModalMode =
-  | 'none'
-  | 'addBook'
-  | 'editBook'
-  | 'addCategory'
-  | 'editCategory'
-  | 'addAuthor'
-  | 'editAuthor';
+type ModalMode = 'none' | 'addBook' | 'editBook' | 'addCategory' | 'editCategory' | 'addAuthor' | 'editAuthor';
 
 @Component({
   selector: 'app-admin-books',
@@ -34,23 +27,24 @@ type ModalMode =
   styleUrls: ['./books.css'],
 })
 export class AdminBooksComponent implements OnInit {
+
   // ── Data signals ──────────────────────────────────
-  books = signal<Book[]>([]);
+  books      = signal<Book[]>([]);
   categories = signal<Category[]>([]);
-  authors = signal<Author[]>([]);
-  loading = signal(true);
-  error = signal<string | null>(null);
+  authors    = signal<Author[]>([]);
+  loading    = signal(true);
+  error      = signal<string | null>(null);
 
   // ── Filters ───────────────────────────────────────
-  search = '';
+  search          = '';
   selectedCategory = '';
-  selectedAuthor = '';
+  selectedAuthor   = '';
   minPrice: number | null = null;
   maxPrice: number | null = null;
 
   // ── Pagination ────────────────────────────────────
-  currentPage = 1;
-  limit = 10;
+  currentPage  = 1;
+  limit        = 10;
   totalResults = 0;
 
   // ── Active tab (Books / Categories / Authors) ─────
@@ -59,7 +53,7 @@ export class AdminBooksComponent implements OnInit {
   // ── Modal state ───────────────────────────────────
   modalMode: ModalMode = 'none';
   modalLoading = false;
-  modalError = '';
+  modalError   = '';
 
   // Book form
   bookForm = { name: '', price: 0, stock: 1, author: '', category: '', cover: '' };
@@ -76,10 +70,7 @@ export class AdminBooksComponent implements OnInit {
   authorForm = { name: '', bio: '' };
   editingAuthorId = '';
 
-  constructor(
-    private bookService: BookService,
-    private router: Router,
-  ) {}
+  constructor(private bookService: BookService, private router: Router) {}
 
   ngOnInit(): void {
     this.fetchBooks();
@@ -90,29 +81,6 @@ export class AdminBooksComponent implements OnInit {
   fetchBooks(): void {
     this.loading.set(true);
     this.error.set(null);
-<<<<<<< HEAD
-    this.bookService
-      .getAllBooks({
-        page: this.currentPage,
-        limit: this.limit,
-        search: this.search || undefined,
-        category: this.selectedCategory || undefined,
-        author: this.selectedAuthor || undefined,
-        minPrice: this.minPrice ?? undefined,
-        maxPrice: this.maxPrice ?? undefined,
-      })
-      .subscribe({
-        next: (res) => {
-          this.books.set(res.data);
-          this.totalResults = res.len;
-          this.loading.set(false);
-        },
-        error: () => {
-          this.error.set('Failed to load books.');
-          this.loading.set(false);
-        },
-      });
-=======
     this.bookService.getAllBooks({
       page: this.currentPage, limit: this.limit,
       search: this.search || undefined,
@@ -124,7 +92,6 @@ export class AdminBooksComponent implements OnInit {
       next: (res) => { this.books.set(res.data); this.totalResults = res.len ?? (res as any).total ?? (res as any).results ?? (res.data ? res.data.length : 0); this.loading.set(false); },
       error: () => { this.error.set('Failed to load books.'); this.loading.set(false); },
     });
->>>>>>> 50201485910a27417a9f8f2ac7d921a5f7176b67
   }
 
   loadAuthorsAndCategories(): void {
@@ -149,49 +116,19 @@ export class AdminBooksComponent implements OnInit {
   }
 
   // ── Filter/search ─────────────────────────────────
-  onSearch(): void {
-    this.currentPage = 1;
-    this.fetchBooks();
-  }
-  onFilterChange(): void {
-    this.currentPage = 1;
-    this.fetchBooks();
-  }
+  onSearch(): void { this.currentPage = 1; this.fetchBooks(); }
+  onFilterChange(): void { this.currentPage = 1; this.fetchBooks(); }
   onClearFilters(): void {
-    this.search = '';
-    this.selectedCategory = '';
-    this.selectedAuthor = '';
-    this.minPrice = null;
-    this.maxPrice = null;
-    this.currentPage = 1;
+    this.search = ''; this.selectedCategory = ''; this.selectedAuthor = '';
+    this.minPrice = null; this.maxPrice = null; this.currentPage = 1;
     this.fetchBooks();
   }
 
   // ── Pagination ────────────────────────────────────
-  nextPage(): void {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage++;
-      this.fetchBooks();
-    }
-  }
-  prevPage(): void {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-      this.fetchBooks();
-    }
-  }
-  get totalPages(): number {
-    return Math.ceil(this.totalResults / this.limit) || 1;
-  }
-  get hasActiveFilters(): boolean {
-    return !!(
-      this.search ||
-      this.selectedCategory ||
-      this.selectedAuthor ||
-      this.minPrice ||
-      this.maxPrice
-    );
-  }
+  nextPage(): void { if (this.currentPage < this.totalPages) { this.currentPage++; this.fetchBooks(); } }
+  prevPage(): void { if (this.currentPage > 1) { this.currentPage--; this.fetchBooks(); } }
+  get totalPages(): number { return Math.ceil(this.totalResults / this.limit) || 1; }
+  get hasActiveFilters(): boolean { return !!(this.search || this.selectedCategory || this.selectedAuthor || this.minPrice || this.maxPrice); }
 
   // ── Navigate to public book detail ───────────────
   goToBook(id: string): void {
@@ -218,9 +155,7 @@ export class AdminBooksComponent implements OnInit {
     this.editingAuthorId = '';
   }
 
-  get isModalOpen(): boolean {
-    return this.modalMode !== 'none';
-  }
+  get isModalOpen(): boolean { return this.modalMode !== 'none'; }
 
   // ── BOOK modal actions ────────────────────────────
   openAddBook(): void {
@@ -250,7 +185,7 @@ export class AdminBooksComponent implements OnInit {
     if (!input.files?.length) return;
     this.coverFile = input.files[0];
     const reader = new FileReader();
-    reader.onload = (e) => (this.coverPreview = e.target?.result as string);
+    reader.onload = (e) => this.coverPreview = e.target?.result as string;
     reader.readAsDataURL(this.coverFile);
   }
 
@@ -259,71 +194,54 @@ export class AdminBooksComponent implements OnInit {
     if (!this.coverFile) return this.bookForm.cover;
     this.uploadingCover = true;
 
-    try {
-      const sig = await firstValueFrom(this.bookService.getUploadSignature());
-      if (!sig?.cloudName || !sig?.apiKey || !sig?.signature || !sig?.timestamp) {
-        throw new Error('Invalid Cloudinary signature response');
-      }
+    return new Promise((resolve, reject) => {
+      this.bookService.getUploadSignature().subscribe({
+        next: async (sig) => {
+          const formData = new FormData();
+          formData.append('file', this.coverFile!);
+          formData.append('api_key', sig.apiKey);
+          formData.append('timestamp', sig.timestamp.toString());
+          formData.append('signature', sig.signature);
+          formData.append('folder', sig.folder);
 
-      const formData = new FormData();
-      formData.append('file', this.coverFile);
-      formData.append('api_key', sig.apiKey);
-      formData.append('timestamp', sig.timestamp.toString());
-      formData.append('signature', sig.signature);
-      formData.append('folder', sig.folder);
-
-      const res = await fetch(`https://api.cloudinary.com/v1_1/${sig.cloudName}/image/upload`, {
-        method: 'POST',
-        body: formData,
+          try {
+            const res = await fetch(
+              `https://api.cloudinary.com/v1_1/${sig.cloudName}/image/upload`,
+              { method: 'POST', body: formData }
+            );
+            const data = await res.json();
+            this.uploadingCover = false;
+            resolve(data.secure_url);
+          } catch {
+            this.uploadingCover = false;
+            reject('Cover upload failed');
+          }
+        },
+        error: () => { this.uploadingCover = false; reject('Could not get upload signature'); },
       });
-
-      const data = await res.json();
-      if (!res.ok || !data?.secure_url) {
-        const msg = data?.error?.message || 'Cloudinary upload failed';
-        throw new Error(msg);
-      }
-
-      return data.secure_url;
-    } catch (error: any) {
-      throw new Error(error?.message || 'Cover upload failed');
-    } finally {
-      this.uploadingCover = false;
-    }
+    });
   }
 
   async saveBook(): Promise<void> {
     this.modalLoading = true;
     this.modalError = '';
     try {
-      const coverUrl = this.coverFile ? await this.uploadCoverToCloudinary() : this.bookForm.cover;
-
-      if (!coverUrl) {
-        throw new Error('Book cover upload failed. Please try again.');
-      }
+      // Upload cover if a new file was selected
+      const coverUrl = this.coverFile
+        ? await this.uploadCoverToCloudinary()
+        : this.bookForm.cover;
 
       const payload = { ...this.bookForm, cover: coverUrl };
 
       if (this.modalMode === 'addBook') {
         this.bookService.createBook(payload as any).subscribe({
-          next: () => {
-            this.closeModal();
-            this.fetchBooks();
-          },
-          error: (e) => {
-            this.modalError = e?.error?.message || 'Failed to create book.';
-            this.modalLoading = false;
-          },
+          next: () => { this.closeModal(); this.fetchBooks(); },
+          error: (e) => { this.modalError = e?.error?.message || 'Failed to create book.'; this.modalLoading = false; },
         });
       } else {
         this.bookService.updateBook(this.editingBookId, payload).subscribe({
-          next: () => {
-            this.closeModal();
-            this.fetchBooks();
-          },
-          error: (e) => {
-            this.modalError = e?.error?.message || 'Failed to update book.';
-            this.modalLoading = false;
-          },
+          next: () => { this.closeModal(); this.fetchBooks(); },
+          error: (e) => { this.modalError = e?.error?.message || 'Failed to update book.'; this.modalLoading = false; },
         });
       }
     } catch (err: any) {
@@ -353,29 +271,16 @@ export class AdminBooksComponent implements OnInit {
   }
 
   saveCategory(): void {
-    this.modalLoading = true;
-    this.modalError = '';
+    this.modalLoading = true; this.modalError = '';
     if (this.modalMode === 'addCategory') {
       this.bookService.createCategory(this.categoryForm).subscribe({
-        next: () => {
-          this.closeModal();
-          this.fetchCategories();
-        },
-        error: (e) => {
-          this.modalError = e?.error?.message || 'Failed to create category.';
-          this.modalLoading = false;
-        },
+        next: () => { this.closeModal(); this.fetchCategories(); },
+        error: (e) => { this.modalError = e?.error?.message || 'Failed to create category.'; this.modalLoading = false; },
       });
     } else {
       this.bookService.updateCategory(this.editingCategoryId, this.categoryForm).subscribe({
-        next: () => {
-          this.closeModal();
-          this.fetchCategories();
-        },
-        error: (e) => {
-          this.modalError = e?.error?.message || 'Failed to update category.';
-          this.modalLoading = false;
-        },
+        next: () => { this.closeModal(); this.fetchCategories(); },
+        error: (e) => { this.modalError = e?.error?.message || 'Failed to update category.'; this.modalLoading = false; },
       });
     }
   }
@@ -401,29 +306,16 @@ export class AdminBooksComponent implements OnInit {
   }
 
   saveAuthor(): void {
-    this.modalLoading = true;
-    this.modalError = '';
+    this.modalLoading = true; this.modalError = '';
     if (this.modalMode === 'addAuthor') {
       this.bookService.createAuthor(this.authorForm).subscribe({
-        next: () => {
-          this.closeModal();
-          this.fetchAuthors();
-        },
-        error: (e) => {
-          this.modalError = e?.error?.message || 'Failed to create author.';
-          this.modalLoading = false;
-        },
+        next: () => { this.closeModal(); this.fetchAuthors(); },
+        error: (e) => { this.modalError = e?.error?.message || 'Failed to create author.'; this.modalLoading = false; },
       });
     } else {
       this.bookService.updateAuthor(this.editingAuthorId, this.authorForm).subscribe({
-        next: () => {
-          this.closeModal();
-          this.fetchAuthors();
-        },
-        error: (e) => {
-          this.modalError = e?.error?.message || 'Failed to update author.';
-          this.modalLoading = false;
-        },
+        next: () => { this.closeModal(); this.fetchAuthors(); },
+        error: (e) => { this.modalError = e?.error?.message || 'Failed to update author.'; this.modalLoading = false; },
       });
     }
   }
@@ -439,17 +331,15 @@ export class AdminBooksComponent implements OnInit {
   // ── Helpers ───────────────────────────────────────
   stockClass(stock: number): string {
     if (stock === 0) return 'bg-red-50 text-red-800 border-red-200';
-    if (stock < 10) return 'bg-amber-50 text-amber-700 border-amber-200';
+    if (stock < 10)  return 'bg-amber-50 text-amber-700 border-amber-200';
     return 'bg-emerald-50 text-emerald-700 border-emerald-200';
   }
   stockLabel(stock: number): string {
     if (stock === 0) return 'Out of Stock';
-    if (stock < 10) return 'Low Stock';
+    if (stock < 10)  return 'Low Stock';
     return 'In Stock';
   }
 
   @HostListener('document:keydown.escape')
-  onEsc(): void {
-    this.closeModal();
-  }
+  onEsc(): void { this.closeModal(); }
 }

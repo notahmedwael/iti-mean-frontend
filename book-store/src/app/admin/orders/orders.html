@@ -154,7 +154,7 @@
     </select>
 
     <!-- Results count -->
-    <p class="text-sm text-gray-400 ml-auto">{{ filteredOrders.length }} orders</p>
+    <p class="text-sm text-gray-400 ml-auto">{{ totalResults }} orders</p>
   </div>
 
   <!-- ── Orders Table ── -->
@@ -307,7 +307,7 @@
           </tr>
 
           <!-- Empty state -->
-          <tr *ngIf="filteredOrders.length === 0">
+          <tr *ngIf="totalResults === 0">
             <td colspan="8" class="px-6 py-16 text-center text-gray-400 text-sm">
               <p class="text-4xl mb-3">📭</p>
               No orders found matching your filters
@@ -320,7 +320,7 @@
     <!-- Pagination -->
     <app-pagination
       [currentPage]="currentPage"
-      [totalItems]="filteredOrders.length"
+      [totalItems]="totalResults"
       [itemsPerPage]="itemsPerPage"
       (pageChange)="goToPage($event)"
     >

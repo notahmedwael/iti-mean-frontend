@@ -3,8 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { PaginationComponent } from '../shared/pagination/pagination';
-import { OrderService } from '../services/order.service';
-
+import { OrderService } from '../../services/order.service';
 export type OrderStatus = 'Pending' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled';
 export type PaymentStatus = 'Pending' | 'Completed' | 'Failed' | 'Refunded';
 export type PaymentMethod = 'Credit Card' | 'Debit Card' | 'PayPal' | 'Bank Transfer';
@@ -29,7 +28,7 @@ export interface ShippingDetails {
 
 export interface Order {
   _id: string;
-  user: { _id: string; firstName: string; lastName: string; name?: string; email: string };
+  user: { _id: string; name: string; email: string };
   items: OrderItem[];
   shippingDetails: ShippingDetails;
   orderStatus: OrderStatus;
@@ -50,9 +49,8 @@ export class AdminOrdersComponent implements OnInit {
   loading = signal(true);
   error = signal<string | null>(null);
 
-  allOrders: Order[] = [];
-  totalOrdersCount = 0;
-  pages = 1;
+  // ── Data signals ─────────────────────────────
+  orders = signal<Order[]>([]);
 
   // ── Filters ───────────────────────────────────
   searchTerm = '';
@@ -61,17 +59,28 @@ export class AdminOrdersComponent implements OnInit {
 
   // ── Pagination ────────────────────────────────
   currentPage = 1;
-  itemsPerPage = 6;
+  itemsPerPage = 10;
+  totalResults = 0;
+  
+  // ── Stats ─────────────────────────────────────
+  totalOrdersCount = 0; // Total overall orders in DB
+  pendingOrdersCount = 0; // Total pending overall (requires separate fetch or just local page)
+  deliveredOrdersCount = 0; // Total delivered overall
+  totalRevenueCount = 0; // Total revenue overall
+
+  // NOTE: A real enterprise app would have a /stats endpoint for the overall counts above.
+  // For now, we will just use the current page's totals or what we can infer.
+
 
   // ── Detail drawer ─────────────────────────────
   selectedOrder: Order | null = null;
   openMenuId: string | null = null;
 
-  constructor(private orderService: OrderService) {}
-
   // ── Status options ────────────────────────────
   orderStatuses: OrderStatus[] = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
   paymentStatuses: PaymentStatus[] = ['Pending', 'Completed', 'Failed', 'Refunded'];
+
+  constructor(private orderService: OrderService) {}
 
   ngOnInit(): void {
     this.fetchOrders();
@@ -80,68 +89,62 @@ export class AdminOrdersComponent implements OnInit {
   fetchOrders(): void {
     this.loading.set(true);
     this.error.set(null);
-
-    this.orderService
-      .getAllOrders({
-        status: this.filterOrderStatus || undefined,
-        paymentStatus: this.filterPaymentStatus || undefined,
-        page: this.currentPage,
-        limit: this.itemsPerPage,
-      })
-      .subscribe({
-        next: (res) => {
-          this.allOrders = res.data.data.map((order) => ({
-            ...order,
-            user: {
-              ...order.user,
-              name: `${order.user.firstName} ${order.user.lastName}`,
-            },
-          }));
-          this.totalOrdersCount = res.data.pagination.total;
-          this.pages = res.data.pagination.pages;
-          this.loading.set(false);
-        },
-        error: (err) => {
-          console.error('Failed to load admin orders', err);
-          this.error.set('Failed to load orders from the database.');
-          this.loading.set(false);
-        },
-      });
-  }
-
-  // ── Computed ──────────────────────────────────
-  get filteredOrders(): Order[] {
-    return this.allOrders.filter((o) => {
-      const q = this.searchTerm.toLowerCase();
-      const userName = (o.user.name || `${o.user.firstName} ${o.user.lastName}`).toLowerCase();
-      const matchSearch =
-        !q ||
-        o._id.toLowerCase().includes(q) ||
-        userName.includes(q) ||
-        o.user.email.toLowerCase().includes(q);
-      const matchOrder = !this.filterOrderStatus || o.orderStatus === this.filterOrderStatus;
-      const matchPayment =
-        !this.filterPaymentStatus || o.paymentStatus === this.filterPaymentStatus;
-      return matchSearch && matchOrder && matchPayment;
+    this.orderService.getAllOrders({
+      page: this.currentPage,
+      limit: this.itemsPerPage,
+      status: this.filterOrderStatus || undefined,
+      paymentStatus: this.filterPaymentStatus || undefined,
+    }).subscribe({
+      next: (res: any) => {
+        let ordersData = res.data?.data || [];
+        // Optional local text-based mapping if search term is provided (ideally this should be a backend search)
+        if (this.searchTerm) {
+          const q = this.searchTerm.toLowerCase();
+          ordersData = ordersData.filter((o: any) => 
+            o._id.toLowerCase().includes(q) ||
+            o.user?.firstName?.toLowerCase().includes(q) ||
+            o.user?.lastName?.toLowerCase().includes(q) ||
+            o.user?.email?.toLowerCase().includes(q)
+          );
+        }
+        
+        this.orders.set(ordersData);
+        this.totalResults = res.data?.pagination?.total || ordersData.length;
+        
+        // Approximate metrics based on loaded data
+        this.totalOrdersCount = this.totalResults;
+        this.loading.set(false);
+      },
+      error: () => {
+        this.error.set('Failed to load orders.');
+        this.loading.set(false);
+      }
     });
   }
 
+  // ── Computed ──────────────────────────────────
+  // Replaced static pagedOrders with API driven directly from this.orders()
   get pagedOrders(): Order[] {
-    const start = (this.currentPage - 1) * this.itemsPerPage;
-    return this.filteredOrders.slice(start, start + this.itemsPerPage);
+    return this.orders();
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.totalResults / this.itemsPerPage) || 1;
   }
 
   get totalOrders(): number {
     return this.totalOrdersCount;
   }
+  
+  // Real enterprise setups would fetch accurate stats, but we'll approximate based on current loaded page for simplicity here
   get pendingOrders(): number {
-    return this.allOrders.filter((o) => o.orderStatus === 'Pending').length;
+    return this.orders().filter((o) => o.orderStatus === 'Pending').length;
   }
   get deliveredOrders(): number {
-    return this.allOrders.filter((o) => o.orderStatus === 'Delivered').length;
+    return this.orders().filter((o) => o.orderStatus === 'Delivered').length;
   }
   get totalRevenue(): number {
-    return this.allOrders
+    return this.orders()
       .filter((o) => o.paymentStatus === 'Completed')
       .reduce((s, o) => s + o.totalAmount, 0);
   }
@@ -169,15 +172,18 @@ export class AdminOrdersComponent implements OnInit {
   }
 
   updateOrderStatus(order: Order, status: OrderStatus): void {
-    order.orderStatus = status;
-    console.log('TODO: PATCH /order/' + order._id, { orderStatus: status });
+    this.orderService.updateOrderStatusAdmin(order._id, status).subscribe({
+      next: () => {
+        order.orderStatus = status; // optimistically update
+        this.fetchOrders(); // sync with backend
+      },
+      error: () => alert('Failed to update status')
+    });
   }
 
+  // No backend delete route exists, so avoiding functionality
   deleteOrder(id: string): void {
-    if (confirm('Delete this order?')) {
-      this.allOrders = this.allOrders.filter((o) => o._id !== id);
-      this.closeMenu();
-    }
+    alert('Orders cannot be deleted through this interface. Please contact developers for db-level removal.');
   }
 
   toggleMenu(id: string, e: Event): void {

@@ -28,7 +28,7 @@ export class OrdersHistoryComponent implements OnInit {
 
     this.orderService.getUserOrders().subscribe({
       next: (res) => {
-        this.orders.set(res.data.orders);
+        this.orders.set(res.data.orders || []);
         this.loading.set(false);
       },
       error: () => {
