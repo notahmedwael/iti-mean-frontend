@@ -89,7 +89,7 @@ export class AdminBooksComponent implements OnInit {
       minPrice: this.minPrice ?? undefined,
       maxPrice: this.maxPrice ?? undefined,
     }).subscribe({
-      next: (res) => { this.books.set(res.data); this.totalResults = res.len; this.loading.set(false); },
+      next: (res) => { this.books.set(res.data); this.totalResults = res.len ?? (res as any).total ?? (res as any).results ?? (res.data ? res.data.length : 0); this.loading.set(false); },
       error: () => { this.error.set('Failed to load books.'); this.loading.set(false); },
     });
   }
